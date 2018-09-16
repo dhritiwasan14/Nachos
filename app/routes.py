@@ -1,8 +1,10 @@
-from app import app 
-from flask import render_template, request, make_response
+# from app import app
+from flask import render_template, request, make_response, Flask
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mongoengine import MongoEngine, Document
 
+# print(app)
+app = Flask(__name__)
 
 app.config['MONGO_URI'] = "mongodb://localhost:27017/nachos"
 db = MongoEngine(app)
@@ -42,7 +44,16 @@ def sign_up():
     resp.set_cookie(request.form.get('mem_id'))
     return resp
 
+@app.route('/product/<pid>', methods = ['GET', 'POST'])
+def product(pid):
+    db.products.find({'id':pid})
+    return "ID: {}".format(pid)
+
 # @app.route('/', methods=['GET'])
 # def main():
 #     # reading cookie
 #     cookie = request.cookies.get('session')
+
+if __name__ == "__main__":
+    app.debug=True
+    app.run(port=5000)
