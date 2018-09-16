@@ -1,0 +1,367 @@
+{
+	"info": {
+		"_postman_id": "1ab164c1-bfdf-4443-bbdd-3ec75eb8b352",
+		"name": "App Challenge 2018 SIA API Services",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "https://apigw.singaporeair.com/appchallenge/api/flightroutestatus",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "apikey",
+						"value": "aghk73f4x5haxeby7z24d2rc"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"originAirportCode\": \"SIN\", \"destinationAirportCode\": \"DXB\", \"scheduledDepartureDate\": \"2018-08-15\"}"
+				},
+				"url": {
+					"raw": "https://apigw.singaporeair.com/appchallenge/api/flightroutestatus",
+					"protocol": "https",
+					"host": [
+						"apigw",
+						"singaporeair",
+						"com"
+					],
+					"path": [
+						"appchallenge",
+						"api",
+						"flightroutestatus"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://apigw.singaporeair.com/appchallenge/api/flightschedule",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "apikey",
+						"value": "aghk73f4x5haxeby7z24d2rc"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"request\":{\"originAirportCode\":\"SIN\",\"destinationAirportCode\":\"HKG\",\"departureDate\":\"2018-09-29\",\"returnFlight\":false}}"
+				},
+				"url": {
+					"raw": "https://apigw.singaporeair.com/appchallenge/api/flightschedule",
+					"protocol": "https",
+					"host": [
+						"apigw",
+						"singaporeair",
+						"com"
+					],
+					"path": [
+						"appchallenge",
+						"api",
+						"flightschedule"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://apigw.singaporeair.com/appchallenge/api/pax/pnr",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "apikey",
+						"value": "aghk73f4x5haxeby7z24d2rc"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"bookingReference\": \"KV54KV\", \"bookingLastName\": \"bala\" }"
+				},
+				"url": {
+					"raw": "https://apigw.singaporeair.com/appchallenge/api/pax/pnr",
+					"protocol": "https",
+					"host": [
+						"apigw",
+						"singaporeair",
+						"com"
+					],
+					"path": [
+						"appchallenge",
+						"api",
+						"pax",
+						"pnr"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://apigw.singaporeair.com/appchallenge/api/krisflyer/profile",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "apikey",
+						"value": "aghk73f4x5haxeby7z24d2rc"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"krisflyerNumber\": \"5918588234\"}"
+				},
+				"url": {
+					"raw": "https://apigw.singaporeair.com/appchallenge/api/krisflyer/profile",
+					"protocol": "https",
+					"host": [
+						"apigw",
+						"singaporeair",
+						"com"
+					],
+					"path": [
+						"appchallenge",
+						"api",
+						"krisflyer",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://apigw.singaporeair.com/appchallenge/api/flight/passenger",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "apikey",
+						"value": "aghk73f4x5haxeby7z24d2rc"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"flightNo\": \"SQ890\", \"flightDate\": \"2018-07-20\" }"
+				},
+				"url": {
+					"raw": "https://apigw.singaporeair.com/appchallenge/api/flight/passenger",
+					"protocol": "https",
+					"host": [
+						"apigw",
+						"singaporeair",
+						"com"
+					],
+					"path": [
+						"appchallenge",
+						"api",
+						"flight",
+						"passenger"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://apigw.singaporeair.com/appchallenge/api/shop/orderinfo",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "apikey",
+						"value": "aghk73f4x5haxeby7z24d2rc"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"OrderNumber\": \"K2354544\" }"
+				},
+				"url": {
+					"raw": "https://apigw.singaporeair.com/appchallenge/api/shop/orderinfo",
+					"protocol": "https",
+					"host": [
+						"apigw",
+						"singaporeair",
+						"com"
+					],
+					"path": [
+						"appchallenge",
+						"api",
+						"shop",
+						"orderinfo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://apigw.singaporeair.com/appchallenge/api/checkin/baggage",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "apikey",
+						"value": "aghk73f4x5haxeby7z24d2rc"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"bookingInformation\": { \"flightNo\": \"SQ318\", \"flightDate\": \"2018-07-20\", \"bookingReference\": \"NDK123\" }, \"passengerInformation\": { \"firstName\": \"Sabrina\", \"lastName\": \"Robinson\" }, \"baggageInformation\": { \"noOfBaggage\": \"1\", \"baggageWeight\": \"22\" } }"
+				},
+				"url": {
+					"raw": "https://apigw.singaporeair.com/appchallenge/api/checkin/baggage",
+					"protocol": "https",
+					"host": [
+						"apigw",
+						"singaporeair",
+						"com"
+					],
+					"path": [
+						"appchallenge",
+						"api",
+						"checkin",
+						"baggage"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://apigw.singaporeair.com/appchallenge/api/equipment/loadplan",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "apikey",
+						"value": "aghk73f4x5haxeby7z24d2rc"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"aircraftType\":\"773\",\"route\":\"SIN/AKL\"}"
+				},
+				"url": {
+					"raw": "https://apigw.singaporeair.com/appchallenge/api/equipment/loadplan",
+					"protocol": "https",
+					"host": [
+						"apigw",
+						"singaporeair",
+						"com"
+					],
+					"path": [
+						"appchallenge",
+						"api",
+						"equipment",
+						"loadplan"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://apigw.singaporeair.com/appchallenge/api/inventory/item",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "apikey",
+						"value": "aghk73f4x5haxeby7z24d2rc"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\t\r\n\t\"item\":\"JCL large round plate\",\r\n\t\"station\" : \"CPH\"\r\n}"
+				},
+				"url": {
+					"raw": "https://apigw.singaporeair.com/appchallenge/api/inventory/item",
+					"protocol": "https",
+					"host": [
+						"apigw",
+						"singaporeair",
+						"com"
+					],
+					"path": [
+						"appchallenge",
+						"api",
+						"inventory",
+						"item"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://apigw.singaporeair.com/appchallenge/api/meal/upliftplan",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "apikey",
+						"value": "aghk73f4x5haxeby7z24d2rc"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"flightNo\": \"SQ336\", \"flightDate\": \"2018-07-20\" }"
+				},
+				"url": {
+					"raw": "https://apigw.singaporeair.com/appchallenge/api/meal/upliftplan",
+					"protocol": "https",
+					"host": [
+						"apigw",
+						"singaporeair",
+						"com"
+					],
+					"path": [
+						"appchallenge",
+						"api",
+						"meal",
+						"upliftplan"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
