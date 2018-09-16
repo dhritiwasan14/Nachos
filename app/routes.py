@@ -2,6 +2,7 @@ from app import app
 from flask import render_template, request, make_response, Flask
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mongoengine import MongoEngine, Document
+from flask import jsonify
 
 # print(app)
 # app = Flask(__name__)
@@ -62,6 +63,10 @@ def sign_up():
 #     print (request)
 #     products = db.products.find()
 #     return products
+@app.route('/product/<pid>', methods = ['GET', 'POST'])
+def product(pid):
+    return jsonify(db.products.find({'id':pid}))
+    # return "ID: {}".format(pid)
 
 # @app.route('/', methods=['GET'])
 # def main():
