@@ -1,3 +1,5 @@
+import json
+
 from app import app
 from flask import render_template, request, make_response, Flask
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -17,13 +19,14 @@ class User(db.Document):
     password = db.StringField()
 
 class Product(db.Document):
-    id = db.IntField()
+    meta = {'collection': 'products'}
+    id = db.IntField(primary_key=True)
     name = db.StringField()
     category = db.ListField()
-    description = db.StringField()
+    content = db.StringField()
     price = db.StringField()
     miles = db.StringField()
-    image = db.StringField()
+    image = db.URLField()
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -53,20 +56,42 @@ def sign_up():
     resp.set_cookie(request.form.get('mem_id'))
     return resp
 
-# @app.route('/product/<pid>', methods = ['GET', 'POST'])
-# def product(pid):
-#     db.products.find({'id':pid})
-#     return "ID: {}".format(pid)
-
-# @app.route('/products', methods=['GET', 'POST'])
-# def products():
-#     print (request)
-#     products = db.products.find()
-#     return products
 @app.route('/product/<pid>', methods = ['GET', 'POST'])
 def product(pid):
-    return jsonify(db.products.find({'id':pid}))
-    # return "ID: {}".format(pid)
+    products = Product.objects(id=pid).first()
+    return json.dumps(create_product_json(products))
+
+@app.route('/products', methods=['GET'])
+def products():
+    products = Product.objects
+    return json.dumps([create_product_json(product) for product in products])
+
+@app.route('/add_product', methods=['POST'])
+def add_product():
+    form = request.form
+    print (form.get('image'))
+    product = Product(
+        form.get('id'),
+        form.get('name'),
+        form.getlist("category"),
+        form.get('content'),
+        form.get('price'),
+        form.get('miles'),
+        form.get('image')
+    ).save()
+    print (Product.objects.count())
+    return 'SAVED' if product else None
+
+def create_product_json(product):
+    return {
+        'id': product.id,
+        'name': product.name,
+        'category': product.category,
+        'content': product.content,
+        'price': product.price,
+        'miles': product.miles,
+        'image': product.image
+    }
 
 # @app.route('/', methods=['GET'])
 # def main():
