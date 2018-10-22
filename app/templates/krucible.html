@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Krucible</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="font.css">
+	<link href="krucible.css" rel="stylesheet">
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+	<link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+	<!-- Static navbar -->
+	<div class="container-fluid no-margin" id="nav-container">
+		<nav class="navbar navbar-expand-lg navbar-light bg-white">
+		  <a class="navbar-brand" href="#">
+		    <img src="img/logo.png" width="30" height="30" alt="" style="margin-top: -12px">&nbsp;&nbsp;<span class="page-title" style="font-size: 1.5em;">K</span><span class="page-title" style="font-size: 1.2em;">RUCIBLE</span>
+		  </a>
+		  <ul class="navbar-nav mr-auto">
+		  </ul>
+		    <ul class="navbar-nav my-2 my-lg-0" id="navUserDropdown">
+		      <li class="nav-item dropdown"">
+		        <a class="nav-link" href="#" id="navUser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		        	<img src="img/profile-sample.png" id="imgUserProfile"> &nbsp;&nbsp;
+		          Rayson Lim
+		        </a>
+		        <div class="dropdown-menu" aria-labelledby="navUser">
+		          <a class="dropdown-item" href="#">Sign Out</a>
+		        </div>
+		      </li>
+		    </ul>
+		</nav>
+	</div>
+	<div class="container-fluid no-margin">
+		<div class="row main-content no-gutters">
+			<!-- Create side pane with events -->
+			<div class="col-md-2 col-xs-4" id="side-nav-container">
+				<div class="scrollable">
+					<table class="table table-hover" id="side-nav-table" border="0">
+						<tr id="navDashboard" class="side-nav-item"><td><img src="img/dashboard-24px.png" class="nav-item-icon" /><span class="nav-item-text">Dashboard</span></td></tr>
+						<tr id="navOrders" class="side-nav-item"><td><img src="img/orders-24px.png" class="nav-item-icon" /><span class="nav-item-text">Orders</span></td></tr>
+						<tr id="navEmployees" class="side-nav-item"><td><img src="img/employees-24px.png" class="nav-item-icon" /><span class="nav-item-text">Employees</span></td></tr>
+					</table>
+				</div>
+			</div>
+			<!-- Begin main detail view -->
+			<div class="col-md-10 col-xs-8 scrollable" style="z-index: -100; background: #F6F6F8;">
+				<div id="panDashboard" class="pane">
+					Dashboard
+				</div>
+				<div id="panOrders" class="pane">
+					<table id="orders">
+						<thead>
+							<th>Order ID</th>
+							<th>Buyer ID</th>
+							<th>Date Ordered</th>
+							<th>Last Updated</th>
+							<th>Last Updated By</th>
+							<th>Status</th>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
+				<div id="panEmployees" class="pane">
+					
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+	<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript">
+		var selected = 'Dashboard';
+       		// Function that loads the appropriate event when selected and updates the UI to reflect it
+		function select(pane) {
+			$("#nav" + selected).removeClass('selected'); // "De-select" the row of the previously selected event
+			$("#nav" + selected).find(".nav-item-icon").attr('src', 'img/' + selected.toLowerCase() + '-24px.png');
+			selected = pane; // Set the selected event to the event that was clicked
+			$("#nav" + pane).addClass('selected'); // "Select" the row of the clicked event
+			$("#nav" + selected).find(".nav-item-icon").attr('src', 'img/selected-' + selected.toLowerCase() + '-24px.png');
+			// Load the event data into the page
+			loadPane('pan' + pane);
+		}
+		
+		function loadPane(paneId) {
+			$(".pane").hide();
+			$("#" + paneId).show();
+		}
+		function popOrdersTable(orders) {
+			console.log(orders[0]['order_id']);
+			var orderTable = document.getElementById('orders').getElementsByTagName('tbody')[0];
+			for (var i = 0; i<orders.length; i++) {
+				var row = orderTable.insertRow(i);
+				var cell_no = 0;
+				var order_id = row.insertCell(cell_no++);
+				order_id.innerHTML = orders[i]['order_id'];
+				var buyer_id = row.insertCell(cell_no++);
+				buyer_id.innerHTML = orders[i]['buyer_id'];
+				var order_date = row.insertCell(cell_no++);
+				order_date.innerHTML = orders[i]['order_date'];
+				var last_update_date = row.insertCell(cell_no++);
+				last_update_date.innerHTML = orders[i]['last_update_date'];
+				var last_updated_by = row.insertCell(cell_no++);
+				last_updated_by.innerHTML = orders[i]['last_updated_by'];
+				var status = row.insertCell(cell_no++);
+				status.innerHTML = orders[i]['status'];
+		}
+		// function popEmployeeTable(employees) {
+		// 	console.log(employees[0]['order_id']);
+		// 	var employeeTable = document.getElementById('employees').getElementsByTagName('tbody')[0];
+		// 	for (var i = 0; i<employees.length; i++) {
+		// 		console.log(employees[i]);
+		// 		var row = employeeTable.insertRow(i);
+		// 		var cell_no = 0;
+		// 		var order_id = row.insertCell(cell_no++);
+		// 		order_id.innerHTML = employees[i]['order_id'];
+		// 		var buyer_id = row.insertCell(cell_no++);
+		// 		buyer_id.innerHTML = employees[i]['buyer_id'];
+		// 		var order_date = row.insertCell(cell_no++);
+		// 		order_date.innerHTML = employees[i]['order_date'];
+		// 		var last_update_date = row.insertCell(cell_no++);
+		// 		last_update_date.innerHTML = employees[i]['last_update_date'];
+		// 		var last_updated_by = row.insertCell(cell_no++);
+		// 		last_updated_by.innerHTML = employees[i]['last_updated_by'];
+		// 		var status = row.insertCell(cell_no++);
+		// 		status.innerHTML = employees[i]['status'];
+		// 	}
+		// }
+		// Set up event listener for when the DOM is fully loaded
+		$(document).ready(function() {
+			// Select the provided event, or the first event as appropriate
+			select(selected);
+			
+			$(".side-nav-item").click(function(e) {
+				select($(this).attr('id').substring(3));
+			});
+			// call endpoint for list of orders
+			// var employees = []
+			var orders = [
+				{
+					'order_id': '84768374',
+					'buyer_id': 'K123456789',
+					'order_date': '20/09/2018 10:00 AM',
+					'last_update_date': '23/09/2018 9:00 AM',
+					'last_updated_by': 'Rayson Lim',
+					'status': 'Packed'
+				},
+				{
+					'order_id': '84768374',
+					'buyer_id': 'K123456789',
+					'order_date': '20/09/2018 10:00 AM',
+					'last_update_date': '23/09/2018 9:00 AM',
+					'last_updated_by': 'Rayson Lim',
+					'status': 'Packed'
+				},
+				{
+					'order_id': '84768374',
+					'buyer_id': 'K123456789',
+					'order_date': '20/09/2018 10:00 AM',
+					'last_update_date': '23/09/2018 9:00 AM',
+					'last_updated_by': 'Rayson Lim',
+					'status': 'Packed'
+				},
+				{
+					'order_id': '84768374',
+					'buyer_id': 'K123456789',
+					'order_date': '20/09/2018 10:00 AM',
+					'last_update_date': '23/09/2018 9:00 AM',
+					'last_updated_by': 'Rayson Lim',
+					'status': 'Packed'
+				},
+				{
+					'order_id': '84768374',
+					'buyer_id': 'K123456789',
+					'order_date': '20/09/2018 10:00 AM',
+					'last_update_date': '23/09/2018 9:00 AM',
+					'last_updated_by': 'Rayson Lim',
+					'status': 'Packed'
+				},
+				
+			]
+			// popEmployeeTable(employees);
+			popOrdersTable(orders);
+			$(document).ready( function () {
+				$('#employees').DataTable();
+			});
+		});
+	</script>
+</body>
+</html>

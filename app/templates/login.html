@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block content %}
+	<div id="background" style="position: absolute; top: 0; left: 0; height: 100%; width: 100%; z-index: -1;"></div>
+	<div class="text-center" style="margin-top: 5vh;">
+		<div class="offset-md-5 col-md-2">
+			<img src="../static/img/logo.png" class="img-fluid">
+		</div>
+	</div>
+	<div class="page-title text-center">
+		<span style="font-size: 5em;">K</span><span style="font-size: 4em;">RUCIBLE</span>
+	</div>
+    <h3 class="page-subtitle text-center">Extracting gems from your data</h3>
+
+    {% if msg == 'Error' %}
+    <div class="alert alert-warning" role="alert">
+        {{msg}}
+    </div>
+    {% endif %}
+    <div class="form text-center" style="margin-top: 5vh">
+        <form action="/krucible/login" method="post" class="col-md-3" style="margin: auto auto;">
+            <input type="text" class="form-control" style="margin-right: 1vh" placeholder="Username" id="txtUsername" name="username">
+            <input type="password" class="form-control" style="margin-right: 1vh" placeholder="Password" id="txtPassword" name="password">
+            <button class="btn btn-outline-white" id="btnLogin" style="width: 100%; margin-top: 1vh">Log In</button>
+        </form>
+	</div>
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+	
+    <script type="text/javascript">
+        $("#btnLogin").click(function(e) {
+			e.preventDefault();
+			
+			var username = $("#txtUsername").val().trim();
+			var password = $("#txtPassword").val().trim();
+			
+			if(!username || username.length == 0) {
+				$("#txtUsername")[0].setCustomValidity("Please enter a username");
+						$("#txtUsername")[0].reportValidity();
+			}
+			else if(!password || password.length == 0) {
+				$("#txtPassword")[0].setCustomValidity("Please enter a password");
+						$("#txtPassword")[0].reportValidity();
+			}
+			else {
+				$(this).html('<i class=\'fa fa-refresh spinning\'></i> Logging In...');
+				$(this).addClass('disabled').attr("disabled", "disbled");
+				$.post("scripts/Login.php", { username: username, password: password }, function(data) {
+					response = JSON.parse(data);
+					console.log(response);
+					if(response.success) {
+						$("#companyId").val(response.companyId);
+						$("#frmContinue").submit();
+					}
+					else {
+						$("#txtUsername")[0].setCustomValidity(response.message);
+								$("#txtUsername")[0].reportValidity();
+						$("#btnLogin").removeClass('disabled').removeAttr('disabled').html("Log In");
+					}
+				});
+			}
+		});
+	</script>
+{% endblock %}

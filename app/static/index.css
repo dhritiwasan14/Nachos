@@ -1,0 +1,54 @@
+html, body, a, button, input {
+	font-family: 'Proxima Nova Regular' !important; 
+}
+
+html, body {
+	margin: 0;
+	padding: 0;
+	color: white;
+}
+
+body {
+	background-color: #000000;
+}
+
+#background {
+	content: ' ';
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    opacity: 0.6;
+    background-image: url('img/index-background.jpg');
+    background-repeat: no-repeat;
+    background-position: 50% 0;
+    -ms-background-size: cover;
+    -o-background-size: cover;
+    -moz-background-size: cover;
+    -webkit-background-size: cover;
+    background-size: cover;
+}
+
+.page-title {
+	font-family: 'Baker Signet', Times New Roman, serif;
+}
+
+.page-subtitle {
+	font-family: 'Proxima Nova Regular', Arial, sans-serif;
+}
+
+.btn-outline-white {
+    color: #ffffff;
+    background-image: none;
+    background-color: transparent;
+    border-color: #ffffff;
+}
+
+.btn-outline-white:hover {
+	color: #000000;
+    background-color: white;
+    cursor: pointer;
+}

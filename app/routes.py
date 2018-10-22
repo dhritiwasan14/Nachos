@@ -19,6 +19,7 @@ class User(db.Document):
     password = db.StringField()
     uuid = db.StringField()
     orders = db.ListField()
+    auth = db.StringField(default='user') # types include - employee, admin, user
 
 class Product(db.Document):
     meta = {'collection': 'products'}
@@ -48,7 +49,7 @@ class Transaction(db.Document):
     actor = db.StringField()
 
 
-def create_product_json(obj):
+def create_json(obj):
     if isinstance(obj, Product):
         product = obj
         return {
@@ -124,7 +125,7 @@ def product(pid):
     if no_user_with_session_id(request.form.get('uid')):
         return 'Sorry, you are not authenticated.'
     products = Product.objects(id=pid).first()
-    return json.dumps(create_product_json(products))
+    return json.dumps(create_json(products))
 
 
 @app.route('/products', methods=['GET'])
@@ -132,7 +133,7 @@ def products():
     # if no_user_with_session_id(request.form.get('uid')):
     #     return 'Sorry, you are not authenticated.'
     products = Product.objects
-    return json.dumps([create_product_json(product) for product in products])
+    return json.dumps([create_json(product) for product in products])
 
 @app.route('/add_product', methods=['POST'])
 def add_product():
@@ -157,12 +158,16 @@ def add_order():
     if no_user_with_session_id(request.form.get('uid')):
         return 'Sorry, you are not authenticated.'
     product_id = request.form.get('product_id')
-    user = User.objects(uuid=request.form.get('uid'))
+    user_id = request.form.get('uid')
+    user = User.objects(uuid=user_id)
+    datetime_now = datetime.now()
     if product_id and user.first():
         order_id = str(uuid.uuid4())[:8]
-        order = Order(order_id=order_id, product=int(product_id), created=datetime.now(), status='ordered').save()
+        order = Order(order_id=order_id, product=int(product_id), created=datetime_now, last_update=datetime_now, status='ordered', user=user.first()['membership_id']).save()
         user.update_one(orders=user.first()['orders'] + [order.id])
-        return order_id
+        trans = add_transaction(order_id, 'ordered', user.first()['membership_id'])
+        if trans:
+            return order_id
     return 'FAILED'
 
 def get_order(order_id):
@@ -173,7 +178,7 @@ def view_order():
     if no_user_with_session_id(request.form.get('uid')):
         return 'Sorry, you are not authenticated.'
     orders = User.objects(uuid=request.form.get('uid')).first()['orders']
-    return json.dumps([create_product_json(get_order(order)) for order in orders])
+    return json.dumps([create_json(get_order(order)) for order in orders])
 
 @app.route('/update_order', methods=['POST'])
 def update_order():
@@ -181,15 +186,52 @@ def update_order():
         return 'Sorry, you are not authenticated.'
     order_id = request.form.get('order_id')
     set_to = request.form.get('set_to')
+    user = User.objects(uuid=request.form.get('uid'))
     if order_id:
         datetime_now = datetime.utcnow
         order = Order.objects(order_id=request.form.get('order_id'))
         order.update_one(status=set_to)
-        order.update_one(status=datetime_now)
-        trans = add_transaction(order.order_id, order.status, request.form.get('uid'))
+        order.update_one(last_update=datetime_now)
+        trans = add_transaction(order_id, set_to, user.first()['membership_id'])
         if trans:
             return 'SUCCESS'
 
 def add_transaction(order_id, status, actor):
     trans = Transaction(order_id=order_id, action=status, actor=actor).save()
     return trans
+
+
+@app.route('/orders', methods=['POST'])
+def view_all_orders():
+    # uuid = request.form.get('uid')
+    # if uuid:
+    #     admin = User.objects(uuid=uuid).first()
+    #     if admin['auth'] == 'admin':
+    orders = Order.objects
+    return json.dumps([create_json(order) for order in orders])
+    #     return 'NO ADMIN PRIVELEGES '
+    # return 'FAILED'
+
+@app.route('/transactions', methods=['POST'])
+def view_all_transactions():
+#     uuid = request.form.get('uid')
+    # if uuid:
+    #     admin = User.objects(uuid=uuid).first()
+    #     if admin['auth'] == 'admin':
+    transactions = Transaction.objects
+    return json.dumps([create_json(trans) for trans in transactions])
+    #     return 'NO ADMIN PRIVELEGES '
+    # return 'FAILED'
+
+# endpoint to get employee by employee ID
+# endpoint for krucible homepage
+# endpoint for dashboard, employees and orders (krucible)
+
+@app.route('/krucible/login', methods=['GET', 'POST'])
+def krucible_login():
+    if request.method == 'POST':
+        if request.form.get('username') == 'admin':
+            if request.form.get('password') == 'password':
+                return render_template('krucible.html')
+        return render_template('login.html', msg="Error")
+    return render_template('login.html')
