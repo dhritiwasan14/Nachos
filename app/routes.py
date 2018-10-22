@@ -50,6 +50,13 @@ class Transaction(db.Document):
     datetime = db.DateTimeField(default=datetime.utcnow())
     actor = db.StringField()
 
+def all_transactions_for_order(order_id):
+    transactions = Transaction.objects
+    timeline = []
+    for trans in transactions:
+        if trans.order_id == order_id:
+            timeline.append(trans)
+    return json.dumps([create_json(trans) for trans in timeline])
 
 def create_json(obj):
     if isinstance(obj, Product):
@@ -263,3 +270,5 @@ def bestsellers():
         except Exception as e:
             print (e)
     return json.dumps([create_json(product) for product in best_sellers])
+
+

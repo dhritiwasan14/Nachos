@@ -1,6 +1,18 @@
-{% extends 'base.html'%}
-{%block content%}
-    <!-- Static navbar -->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Krucible</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="..static/font.css">
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="../static/krucible.css">
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+	<link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+	<!-- Static navbar -->
 	<div class="container-fluid no-margin" id="nav-container">
 		<nav class="navbar navbar-expand-lg navbar-light bg-white">
 		  <a class="navbar-brand" href="#">
@@ -34,12 +46,12 @@
 				</div>
 			</div>
 			<!-- Begin main detail view -->
-			<div class="col-md-10 col-xs-8 scrollable">
+			<div class="col-md-10 col-xs-8 scrollable" id="detailsView">
 				<div id="panDashboard" class="pane">
 					Dashboard
 				</div>
 				<div id="panOrders" class="pane">
-					<table id="orders" class="table table-striped table-bordered">
+					<table id="orders" class="table">
 						<thead>
 							<th>Order ID</th>
 							<th>Buyer ID</th>
@@ -52,7 +64,7 @@
 					</table>
 				</div>
 				<div id="panEmployees" class="pane">
-					<table id="employees">
+					<table id="employees" class="table">
 						<thead>
 							<th>Order ID</th>
 							<th>Buyer ID</th>
@@ -67,13 +79,33 @@
 			</div>
 		</div>
 	</div>
+    
+    
+	<!-- Modal -->
+	<div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailsModalLabel">Modal Title</h5>
+        			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+        			</button>
+                </div>
+                <div class="modal-body">
+                    <img src="https://images.unsplash.com/photo-1449247666642-264389f5f5b1?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=9b356ab939c00d2d4f3fb8ee27df53ba&auto=format&fit=crop&w=800&q=60" class="img-thumbnail">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+	    	</div>
+        </div>
+	</div>
+    
+	<!-- javascripts -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
-
-	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
-	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css">
 	<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 	<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
 	<script type="text/javascript">
@@ -128,8 +160,19 @@
             console.log(typeof orders);
 			// popEmployeeTable(employees);
 			popOrdersTable(orders);
-			$('#orders').DataTable();
-			$('#employees').DataTable();
+			var ordersTable = $('#orders').DataTable();
+			var employeesTable = $('#employees').DataTable();
+
+			$('#orders tbody').on('click', 'tr', function () {
+                var data = ordersTable.row(this).data();
+                var detailsModal = $('#detailsModal');
+                detailsModal.find('.modal-title').text(data[0]);
+                detailsModal.modal('show');
+                $.getJSON('/transactions/'+data[0], function(result) {
+                    
+                })
+    		});	
 		});
-	</script>
-{%endblock%}
+    </script>
+    </body>
+    </html>
