@@ -1,6 +1,6 @@
 {% extends 'base.html'%}
 {%block content%}
-	<!-- Static navbar -->
+    <!-- Static navbar -->
 	<div class="container-fluid no-margin" id="nav-container">
 		<nav class="navbar navbar-expand-lg navbar-light bg-white">
 		  <a class="navbar-brand" href="#">
@@ -34,17 +34,17 @@
 				</div>
 			</div>
 			<!-- Begin main detail view -->
-			<div class="col-md-10 col-xs-8 scrollable" style="z-index: -100; background: #F6F6F8;">
+			<div class="col-md-10 col-xs-8 scrollable">
 				<div id="panDashboard" class="pane">
 					Dashboard
 				</div>
 				<div id="panOrders" class="pane">
-					<table id="orders">
+					<table id="orders" class="table table-striped table-bordered">
 						<thead>
 							<th>Order ID</th>
 							<th>Buyer ID</th>
-							<th>Date Ordered</th>
-							<th>Last Updated</th>
+							<th>Date Ordered (GMT)</th>
+							<th>Last Updated (GMT)</th>
 							<th>Last Updated By</th>
 							<th>Status</th>
 						</thead>
@@ -52,26 +52,39 @@
 					</table>
 				</div>
 				<div id="panEmployees" class="pane">
-					
+					<table id="employees">
+						<thead>
+							<th>Order ID</th>
+							<th>Buyer ID</th>
+							<th>Date Ordered</th>
+							<th>Rating</th>
+							<th>Action</th>
+							<th>Timestamp</th>
+						</thead>
+						<tbody></tbody>
+					</table>
 				</div>
 			</div>
 		</div>
 	</div>
-	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
-	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
-	<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css">
+	<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
 	<script type="text/javascript">
 		var selected = 'Dashboard';
        		// Function that loads the appropriate event when selected and updates the UI to reflect it
 		function select(pane) {
 			$("#nav" + selected).removeClass('selected'); // "De-select" the row of the previously selected event
-			$("#nav" + selected).find(".nav-item-icon").attr('src', 'img/' + selected.toLowerCase() + '-24px.png');
+			$("#nav" + selected).find(".nav-item-icon").attr('src', '../static/img/' + selected.toLowerCase() + '-24px.png');
 			selected = pane; // Set the selected event to the event that was clicked
 			$("#nav" + pane).addClass('selected'); // "Select" the row of the clicked event
-			$("#nav" + selected).find(".nav-item-icon").attr('src', 'img/selected-' + selected.toLowerCase() + '-24px.png');
+			$("#nav" + selected).find(".nav-item-icon").attr('src', '../static/img/selected-' + selected.toLowerCase() + '-24px.png');
 			// Load the event data into the page
 			loadPane('pan' + pane);
 		}
@@ -87,18 +100,18 @@
 				var row = orderTable.insertRow(i);
 				var cell_no = 0;
 				var order_id = row.insertCell(cell_no++);
-				order_id.innerHTML = orders[i]['order_id'];
+				order_id.innerHTML = orders[i]['id'];
 				var buyer_id = row.insertCell(cell_no++);
-				buyer_id.innerHTML = orders[i]['buyer_id'];
+				buyer_id.innerHTML = orders[i]['user'];
 				var order_date = row.insertCell(cell_no++);
-				order_date.innerHTML = orders[i]['order_date'];
+				order_date.innerHTML = moment(orders[i]['created']).format('DD/MM/YYYY HH:MM:SS');
 				var last_update_date = row.insertCell(cell_no++);
-				last_update_date.innerHTML = orders[i]['last_update_date'];
+				last_update_date.innerHTML = moment(orders[i]['last_update']).format('DD/MM/YYYY HH:MM:SS');
 				var last_updated_by = row.insertCell(cell_no++);
 				last_updated_by.innerHTML = orders[i]['last_updated_by'];
 				var status = row.insertCell(cell_no++);
 				status.innerHTML = orders[i]['status'];
-            }
+			}
 		}
 
 		// Set up event listener for when the DOM is fully loaded
@@ -111,52 +124,12 @@
 			});
 			// call endpoint for list of orders
 			// var employees = []
-			var orders = [
-				{
-					'order_id': '84768374',
-					'buyer_id': 'K123456789',
-					'order_date': '20/09/2018 10:00 AM',
-					'last_update_date': '23/09/2018 9:00 AM',
-					'last_updated_by': 'Rayson Lim',
-					'status': 'Packed'
-				},
-				{
-					'order_id': '84768374',
-					'buyer_id': 'K123456789',
-					'order_date': '20/09/2018 10:00 AM',
-					'last_update_date': '23/09/2018 9:00 AM',
-					'last_updated_by': 'Rayson Lim',
-					'status': 'Packed'
-				},
-				{
-					'order_id': '84768374',
-					'buyer_id': 'K123456789',
-					'order_date': '20/09/2018 10:00 AM',
-					'last_update_date': '23/09/2018 9:00 AM',
-					'last_updated_by': 'Rayson Lim',
-					'status': 'Packed'
-				},
-				{
-					'order_id': '84768374',
-					'buyer_id': 'K123456789',
-					'order_date': '20/09/2018 10:00 AM',
-					'last_update_date': '23/09/2018 9:00 AM',
-					'last_updated_by': 'Rayson Lim',
-					'status': 'Packed'
-				},
-				{
-					'order_id': '84768374',
-					'buyer_id': 'K123456789',
-					'order_date': '20/09/2018 10:00 AM',
-					'last_update_date': '23/09/2018 9:00 AM',
-					'last_updated_by': 'Rayson Lim',
-					'status': 'Packed'
-				},
-				
-			]
+			var orders = JSON.parse({{orders|tojson}});
+            console.log(typeof orders);
 			// popEmployeeTable(employees);
 			popOrdersTable(orders);
-            $('#employees').DataTable();
+			$('#orders').DataTable();
+			$('#employees').DataTable();
 		});
 	</script>
 {%endblock%}

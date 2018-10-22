@@ -40,6 +40,7 @@ class Order(db.Document): # ordered, packed, onboard, arrive, completed
     last_update = db.DateTimeField(default=datetime.utcnow)
     status = db.StringField()
     user = db.StringField()
+    last_updated_by = db.StringField()
 
 class Transaction(db.Document):
     meta = {'collection': 'transactions'}
@@ -70,7 +71,9 @@ def create_json(obj):
             'product': Product.objects(id=order.product).first()['name'],
             'last_update': str(order.last_update),
             'created': str(order.created),
+            'last_updated_by': order.last_updated_by,
             'status': order.status,
+            'user': order.user,
         }
     else:
         trans = obj
@@ -164,7 +167,7 @@ def add_order():
     datetime_now = datetime.now()
     if product_id and user.first():
         order_id = str(uuid.uuid4())[:8]
-        order = Order(order_id=order_id, product=int(product_id), created=datetime_now, last_update=datetime_now, status='ordered', user=user.first()['membership_id']).save()
+        order = Order(order_id=order_id, product=int(product_id), created=datetime_now, last_update=datetime_now, status='ordered', user=user.first()['membership_id'], last_updated_by=user.first()['membership_id']).save()
         user.update_one(orders=user.first()['orders'] + [order.id])
         trans = add_transaction(order_id, 'ordered', user.first()['membership_id'])
         if trans:
@@ -187,15 +190,17 @@ def update_order():
         return 'Sorry, you are not authenticated.'
     order_id = request.form.get('order_id')
     set_to = request.form.get('set_to')
-    user = User.objects(uuid=request.form.get('uid'))
+    user = User.objects(uuid=request.form.get('uid')).first()
     if order_id:
         datetime_now = datetime.utcnow
         order = Order.objects(order_id=request.form.get('order_id'))
         order.update_one(status=set_to)
         order.update_one(last_update=datetime_now)
-        trans = add_transaction(order_id, set_to, user.first()['membership_id'])
+        order.update_one(last_updated_by=user['membership_id'])
+        trans = add_transaction(order_id, set_to, user['membership_id'])
         if trans:
             return 'SUCCESS'
+    return 'FAILED'
 
 def add_transaction(order_id, status, actor):
     trans = Transaction(order_id=order_id, action=status, actor=actor).save()
@@ -240,7 +245,9 @@ def krucible_login():
 
 @app.route('/krucible/dashboard', methods=['GET'])
 def dashboard():
-    return render_template('krucible.html')
+    orders = Order.objects
+    orders = json.dumps([create_json(order) for order in orders])
+    return render_template('krucible.html', orders=orders)
 
 
 @app.route('/bestsellers', methods=['GET'])
