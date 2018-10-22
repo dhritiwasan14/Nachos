@@ -13,13 +13,15 @@ app.config['MONGO_URI'] = "mongodb://localhost:27017/nachos"
 db = MongoEngine(app)
 app.config['SECRET_KEY'] = 'cookie'
 
+
 class User(db.Document):
     meta = {'collection': 'users'}
     membership_id = db.StringField(max_length=30)
     password = db.StringField()
     uuid = db.StringField()
     orders = db.ListField()
-    auth = db.StringField(default='user') # types include - employee, admin, user
+    auth = db.StringField(default='user')  # types include - employee, admin, user
+
 
 class Product(db.Document):
     meta = {'collection': 'products'}
@@ -32,7 +34,8 @@ class Product(db.Document):
     image = db.URLField()
     best_seller = db.BooleanField()
 
-class Order(db.Document): # ordered, packed, onboard, arrive, completed
+
+class Order(db.Document):  # ordered, packed, onboard, arrive, completed
     meta = {'collection': 'orders'}
     order_id = db.StringField()
     product = db.IntField()
@@ -41,6 +44,7 @@ class Order(db.Document): # ordered, packed, onboard, arrive, completed
     status = db.StringField()
     user = db.StringField()
     last_updated_by = db.StringField()
+
 
 class Transaction(db.Document):
     meta = {'collection': 'transactions'}
@@ -66,7 +70,7 @@ def create_json(obj):
     elif isinstance(obj, Order):
         order = obj
         return {
-            'id': order.order_id, 
+            'id': order.order_id,
             'product_id': order.product,
             'product': Product.objects(id=order.product).first()['name'],
             'last_update': str(order.last_update),
@@ -85,6 +89,7 @@ def create_json(obj):
             'actor': trans.actor
         }
 
+
 def no_user_with_session_id(uid=''):
     existing_user = User.objects(uuid=uid).first()
     return existing_user is None
@@ -101,6 +106,7 @@ def login():
             return uid
     return 'FAILED'
 
+
 @app.route('/signup', methods=['POST'])
 def sign_up():
     msg = 'SUCCESS'
@@ -115,8 +121,9 @@ def sign_up():
         else:
             msg = 'FAILED, USER ALREADY EXISTS'
     except Exception as e:
-        msg = f'Failed with error response : {e}' 
+        msg = f'Failed with error response : {e}'
     return msg
+
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -124,7 +131,8 @@ def logout():
         return 'Sorry, you are not authenticated.'
     User.objects(uuid=request.form.get('uid')).update_one(uuid=None)
 
-@app.route('/product/<pid>', methods = ['GET', 'POST'])
+
+@app.route('/product/<pid>', methods=['GET', 'POST'])
 def product(pid):
     if no_user_with_session_id(request.form.get('uid')):
         return 'Sorry, you are not authenticated.'
@@ -138,6 +146,7 @@ def products():
     #     return 'Sorry, you are not authenticated.'
     products = Product.objects
     return json.dumps([create_json(product) for product in products])
+
 
 @app.route('/add_product', methods=['POST'])
 def add_product():
@@ -157,6 +166,7 @@ def add_product():
     print (Product.objects.count())
     return 'SAVED' if product else None
 
+
 @app.route('/add_order', methods=['POST'])
 def add_order():
     if no_user_with_session_id(request.form.get('uid')):
@@ -174,8 +184,10 @@ def add_order():
             return order_id
     return 'FAILED'
 
+
 def get_order(order_id):
     return Order.objects(id=order_id).first()
+
 
 @app.route('/view_order', methods=['POST'])
 def view_order():
@@ -183,6 +195,7 @@ def view_order():
         return 'Sorry, you are not authenticated.'
     orders = User.objects(uuid=request.form.get('uid')).first()['orders']
     return json.dumps([create_json(get_order(order)) for order in orders])
+
 
 @app.route('/update_order', methods=['POST'])
 def update_order():
@@ -202,6 +215,7 @@ def update_order():
             return 'SUCCESS'
     return 'FAILED'
 
+
 def add_transaction(order_id, status, actor):
     trans = Transaction(order_id=order_id, action=status, actor=actor).save()
     return trans
@@ -218,9 +232,10 @@ def view_all_orders():
     #     return 'NO ADMIN PRIVELEGES '
     # return 'FAILED'
 
+
 @app.route('/transactions', methods=['POST'])
 def view_all_transactions():
-#     uuid = request.form.get('uid')
+    #     uuid = request.form.get('uid')
     # if uuid:
     #     admin = User.objects(uuid=uuid).first()
     #     if admin['auth'] == 'admin':
@@ -232,6 +247,7 @@ def view_all_transactions():
 # endpoint to get employee by employee ID
 # endpoint for krucible homepage
 # endpoint for dashboard, employees and orders (krucible)
+
 
 @app.route('/krucible/login', methods=['GET', 'POST'])
 def krucible_login():
@@ -263,6 +279,7 @@ def bestsellers():
         except Exception as e:
             print (e)
     return json.dumps([create_json(product) for product in best_sellers])
+
 
 @app.route('/transactions/<order_id>', methods=['GET'])
 def all_transactions_for_order(order_id):

@@ -97,3 +97,29 @@ nav {
 	font-family: 'Roboto', sans-serif;
 	font-weight: bold;
 }
+
+#detailsView {
+	padding: 30px;
+}
+
+.table {
+	color: #727272;
+}
+
+.table thead > tr > th { border-bottom: none; }
+
+tbody tr:hover {
+	background: #f6f6f6;
+}
+
+.modal-dialog {
+    max-width: 800px;
+}
+
+.img-thumbnail {
+	display: block;
+	max-height: 300px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 12px;
+}

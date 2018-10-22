@@ -93,16 +93,25 @@
 	      		</div>
 	      		<div class="modal-body">
 	     			<img src="https://images.unsplash.com/photo-1449247666642-264389f5f5b1?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=9b356ab939c00d2d4f3fb8ee27df53ba&auto=format&fit=crop&w=800&q=60" class="img-thumbnail">
+	     			
 	     			<table class="table" id="orderDetails">
+	     				<thead>
+	     					<th>Line Item</th>
+	     					<th>Item Name</th>
+	     					<th>Quantity</th>
+	     					<th>Price</th>
+	     				</thead>
+	     				<tbody></tbody>
+	     			</table>
+
+	     			<table class="table" id="orderTransactions">
 	     				<thead>
 	     					<th>Employee ID</th>
 	     					<th>Timestamp</th>
 	     					<th>Updated By</th>
 	     					<th>Action</th>
 	     				</thead>
-	     				<tbody>
-	     					
-	     				</tbody>
+	     				<tbody></tbody>
 	     			</table>
       			</div>
 	      		<div class="modal-footer">
@@ -156,11 +165,11 @@
 				status.innerHTML = orders[i]['status'];
 			}
 		}
-		function popOrderDetailsTable(orderActions) {
+		function popOrderTransactionsTable(orderActions) {
 			console.log(orderActions[0]['employee_id']);
-			var orderDetailsTable = document.getElementById('orderDetails').getElementsByTagName('tbody')[0];
+			var orderTransactionsTable = document.getElementById('orderTransactions').getElementsByTagName('tbody')[0];
 			for (var i = 0; i<orderActions.length; i++) {
-				var row = orderDetailsTable.insertRow(i);
+				var row = orderTransactionsTable.insertRow(i);
 				var cell_no = 0;
 				var employee_id = row.insertCell(cell_no++);
 				employee_id.innerHTML = orderActions[i]['id'];
@@ -170,6 +179,21 @@
 				updated_by.innerHTML = moment(orderActions[i]['datetime']).format('DD/MM/YYYY HH:MM:SS');
 				var action = row.insertCell(cell_no++);
 				action.innerHTML = orderActions[i]['actor'];
+			}
+		}
+		function popOrderDetailsTable(orderItems) {
+			var orderDetailsTable = document.getElementById('orderDetails').getElementsByTagName('tbody')[0];
+			for (var i = 0; i<orderItems.length; i++) {
+				var row = orderDetailsTable.insertRow(i);
+				var cell_no = 0;
+				var lineItem = row.insertCell(cell_no++);
+				lineItem.innerHTML = i+1;
+				var name = row.insertCell(cell_no++);
+				name.innerHTML = orderItems[i]['name'];
+				var quantity = row.insertCell(cell_no++);
+				quantity.innerHTML = orderItems[i]['quantity'];
+				var price = row.insertCell(cell_no++);
+				price.innerHTML = orderItems[i]['price'];
 			}
 		}
 		// function popEmployeeTable(employees) {
@@ -193,6 +217,35 @@
 		// 		status.innerHTML = employees[i]['status'];
 		// 	}
 		// }
+
+		var orders = [
+			{
+				"id": "12345",
+				"user": "123456",
+				"created": "17 Oct 2018 10:00:00",
+				"last_update": "17 Oct 2018 10:00:00",
+				"last_updated_by": "Rayson Lim",
+				"status": "Packed"
+			}
+		]
+
+		var orderItems = [
+			{
+				"name": "Some item you bought",
+				"quantity": 1,
+				"price": "$133.00"
+			}
+		]
+
+		var orderActions = [
+			{
+				employee_id: "12345678",
+				timestamp: "17 Oct 2018 10:00AM",
+				updated_by: "Rayson Lim",
+				action: "Pack"
+			}
+		]
+
 		// Set up event listener for when the DOM is fully loaded
 		$(document).ready(function() {
 			// Select the provided event, or the first event as appropriate
@@ -202,28 +255,33 @@
 				select($(this).attr('id').substring(3));
 			});
 			// call endpoint for list of orders
-			// var employees = []
-			var orders = JSON.parse({{orders|tojson}});
+			// var orders = JSON.parse({{orders|tojson}});
+
 			// popEmployeeTable(employees);
 			popOrdersTable(orders);
-			// popOrderDetailsTable(orderActions);
+			popOrderDetailsTable(orderItems);
+			popOrderTransactionsTable(orderActions);
+
 			var ordersTable = $('#orders').DataTable();
 			var employeesTable = $('#employees').DataTable();
-			var orderDetails = $('#orderDetails').DataTable({searching: false, paging: false, info: false});
+			var orderTransactions = $('#orderTransactions').
+										DataTable({
+											searching: false,
+											paging: false,
+											info: false
+										});
 
 			$('#orders tbody').on('click', 'tr', function () {
         		var data = ordersTable.row(this).data();
         		var detailsModal = $('#detailsModal');
   				
-  				//detailsModal.find('.modal-body').text(data[0]);
                 detailsModal.modal('show');
                 $.getJSON('/transactions/'+data[0], function(result){
                     if (result) {
-                        popOrderDetailsTable(result);
+                        popOrderTransactionsTable(result);
                         $('.odd').hide();
                     }
                 })
-        		//alert( 'You clicked on '+data[0]+'\'s row' );
     		});	
 		});
     </script>
