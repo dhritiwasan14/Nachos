@@ -21,7 +21,7 @@
 		  <ul class="navbar-nav mr-auto">
 		  </ul>
 		    <ul class="navbar-nav my-2 my-lg-0" id="navUserDropdown">
-		      <li class="nav-item dropdown"">
+		      <li class="nav-item dropdown">
 		        <a class="nav-link" href="#" id="navUser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 		        	<img src="../static/img/profile-sample.png" id="imgUserProfile"> &nbsp;&nbsp;
 		          Rayson Lim
@@ -48,7 +48,7 @@
 			<!-- Begin main detail view -->
 			<div class="col-md-10 col-xs-8 scrollable" id="detailsView">
 				<div id="panDashboard" class="pane">
-					Dashboard
+                    <canvas id="canvas"></canvas>
 				</div>
 				<div id="panOrders" class="pane">
 					<table id="orders" class="table">
@@ -118,104 +118,180 @@
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 	<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
-	<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
-	<script type="text/javascript">
-		var selected = 'Dashboard';
-       		// Function that loads the appropriate event when selected and updates the UI to reflect it
-		function select(pane) {
-			$("#nav" + selected).removeClass('selected'); // "De-select" the row of the previously selected event
-			$("#nav" + selected).find(".nav-item-icon").attr('src', '../static/img/' + selected.toLowerCase() + '-24px.png');
-			selected = pane; // Set the selected event to the event that was clicked
-			$("#nav" + pane).addClass('selected'); // "Select" the row of the clicked event
-			$("#nav" + selected).find(".nav-item-icon").attr('src', '../static/img/selected-' + selected.toLowerCase() + '-24px.png');
-			// Load the event data into the page
-			loadPane('pan' + pane);
-		}
-		
-		function loadPane(paneId) {
-			$(".pane").hide();
-			$("#" + paneId).show();
-		}
-		function popOrdersTable(orders) {
-			console.log(orders[0]['order_id']);
-			var orderTable = document.getElementById('orders').getElementsByTagName('tbody')[0];
-			for (var i = 0; i<orders.length; i++) {
-				var row = orderTable.insertRow(i);
-				var cell_no = 0;
-				var order_id = row.insertCell(cell_no++);
-				order_id.innerHTML = orders[i]['id'];
-				var buyer_id = row.insertCell(cell_no++);
-				buyer_id.innerHTML = orders[i]['user'];
-				var order_date = row.insertCell(cell_no++);
-				order_date.innerHTML = moment(orders[i]['created']).format('DD/MM/YYYY HH:MM:SS');
-				var last_update_date = row.insertCell(cell_no++);
-				last_update_date.innerHTML = moment(orders[i]['last_update']).format('DD/MM/YYYY HH:MM:SS');
-				var last_updated_by = row.insertCell(cell_no++);
-				last_updated_by.innerHTML = orders[i]['last_updated_by'];
-				var status = row.insertCell(cell_no++);
-				status.innerHTML = orders[i]['status'];
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+		var config = {
+			type: 'line',
+			data: {
+				labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+				datasets: [{
+					label: 'My First dataset',
+					backgroundColor: window.chartColors.red,
+					borderColor: window.chartColors.red,
+					data: [
+						randomScalingFactor(),
+						randomScalingFactor(),
+						randomScalingFactor(),
+						randomScalingFactor(),
+						randomScalingFactor(),
+						randomScalingFactor(),
+						randomScalingFactor()
+					],
+					fill: false,
+				}, {
+					label: 'My Second dataset',
+					fill: false,
+					backgroundColor: window.chartColors.blue,
+					borderColor: window.chartColors.blue,
+					data: [
+						randomScalingFactor(),
+						randomScalingFactor(),
+						randomScalingFactor(),
+						randomScalingFactor(),
+						randomScalingFactor(),
+						randomScalingFactor(),
+						randomScalingFactor()
+					],
+				}]
+			},
+			options: {
+				responsive: true,
+				title: {
+					display: true,
+					text: 'Chart.js Line Chart'
+				},
+				tooltips: {
+					mode: 'index',
+					intersect: false,
+				},
+				hover: {
+					mode: 'nearest',
+					intersect: true
+				},
+				scales: {
+					xAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Month'
+						}
+					}],
+					yAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Value'
+						}
+					}]
+				}
 			}
-		}
-		function popOrderDetailsTable(orderActions) {
-			console.log(orderActions[0]['employee_id']);
-			var orderDetailsTable = document.getElementById('orderDetails').getElementsByTagName('tbody')[0];
-			for (var i = 0; i<orderActions.length; i++) {
-				var row = orderDetailsTable.insertRow(i);
-				var cell_no = 0;
-				var employee_id = row.insertCell(cell_no++);
-				employee_id.innerHTML = orderActions[i]['id'];
-				var timestamp = row.insertCell(cell_no++);
-				timestamp.innerHTML = orderActions[i]['action'];
-				var updated_by = row.insertCell(cell_no++);
-				updated_by.innerHTML = moment(orderActions[i]['datetime']).format('DD/MM/YYYY HH:MM:SS');
-				var action = row.insertCell(cell_no++);
-				action.innerHTML = orderActions[i]['actor'];
-			}
-		}
-		// function popEmployeeTable(employees) {
-		// 	console.log(employees[0]['order_id']);
-		// 	var employeeTable = document.getElementById('employees').getElementsByTagName('tbody')[0];
-		// 	for (var i = 0; i<employees.length; i++) {
-		// 		console.log(employees[i]);
-		// 		var row = employeeTable.insertRow(i);
-		// 		var cell_no = 0;
-		// 		var order_id = row.insertCell(cell_no++);
-		// 		order_id.innerHTML = employees[i]['order_id'];
-		// 		var buyer_id = row.insertCell(cell_no++);
-		// 		buyer_id.innerHTML = employees[i]['buyer_id'];
-		// 		var order_date = row.insertCell(cell_no++);
-		// 		order_date.innerHTML = employees[i]['order_date'];
-		// 		var last_update_date = row.insertCell(cell_no++);
-		// 		last_update_date.innerHTML = employees[i]['last_update_date'];
-		// 		var last_updated_by = row.insertCell(cell_no++);
-		// 		last_updated_by.innerHTML = employees[i]['last_updated_by'];
-		// 		var status = row.insertCell(cell_no++);
-		// 		status.innerHTML = employees[i]['status'];
-		// 	}
-		// }
-		// Set up event listener for when the DOM is fully loaded
-		$(document).ready(function() {
-			// Select the provided event, or the first event as appropriate
-			select(selected);
-			
-			$(".side-nav-item").click(function(e) {
-				select($(this).attr('id').substring(3));
-			});
-			// call endpoint for list of orders
-			// var employees = []
-			var orders = JSON.parse({{orders|tojson}});
-			// popEmployeeTable(employees);
-			popOrdersTable(orders);
-			// popOrderDetailsTable(orderActions);
-			var ordersTable = $('#orders').DataTable();
-			var employeesTable = $('#employees').DataTable();
-			var orderDetails = $('#orderDetails').DataTable({searching: false, paging: false, info: false});
+		};
+		window.onload = function() {
+			var ctx = document.getElementById('canvas').getContext('2d');
+			window.myLine = new Chart(ctx, config);
+		};
+        var selected = 'Dashboard';
+        // Function that loads the appropriate event when selected and updates the UI to reflect it
+        function select(pane) {
+            $("#nav" + selected).removeClass('selected'); // "De-select" the row of the previously selected event
+            $("#nav" + selected).find(".nav-item-icon").attr('src', '../static/img/' + selected.toLowerCase() + '-24px.png');
+            selected = pane; // Set the selected event to the event that was clicked
+            $("#nav" + pane).addClass('selected'); // "Select" the row of the clicked event
+            $("#nav" + selected).find(".nav-item-icon").attr('src', '../static/img/selected-' + selected.toLowerCase() + '-24px.png');
+            // Load the event data into the page
+            loadPane('pan' + pane);
+        }
 
-			$('#orders tbody').on('click', 'tr', function () {
-        		var data = ordersTable.row(this).data();
-        		var detailsModal = $('#detailsModal');
-  				
-  				//detailsModal.find('.modal-body').text(data[0]);
+        function loadPane(paneId) {
+            $(".pane").hide();
+            $("#" + paneId).show();
+            if (paneId == 'panDashboard') {
+                
+            }
+        }
+        function popOrdersTable(orders) {
+            console.log(orders[0]['order_id']);
+            var orderTable = document.getElementById('orders').getElementsByTagName('tbody')[0];
+            for (var i = 0; i<orders.length; i++) {
+                var row = orderTable.insertRow(i);
+                var cell_no = 0;
+                var order_id = row.insertCell(cell_no++);
+                order_id.innerHTML = orders[i]['id'];
+                var buyer_id = row.insertCell(cell_no++);
+                buyer_id.innerHTML = orders[i]['user'];
+                var order_date = row.insertCell(cell_no++);
+                order_date.innerHTML = moment(orders[i]['created']).format('DD/MM/YYYY HH:MM:SS');
+                var last_update_date = row.insertCell(cell_no++);
+                last_update_date.innerHTML = moment(orders[i]['last_update']).format('DD/MM/YYYY HH:MM:SS');
+                var last_updated_by = row.insertCell(cell_no++);
+                last_updated_by.innerHTML = orders[i]['last_updated_by'];
+                var status = row.insertCell(cell_no++);
+                status.innerHTML = orders[i]['status'];
+            }
+        }
+        function popOrderDetailsTable(orderActions) {
+            console.log(orderActions[0]['employee_id']);
+            var orderDetailsTable = document.getElementById('orderDetails').getElementsByTagName('tbody')[0];
+            for (var i = 0; i<orderActions.length; i++) {
+                var row = orderDetailsTable.insertRow(i);
+                var cell_no = 0;
+                var employee_id = row.insertCell(cell_no++);
+                employee_id.innerHTML = orderActions[i]['id'];
+                var timestamp = row.insertCell(cell_no++);
+                timestamp.innerHTML = orderActions[i]['action'];
+                var updated_by = row.insertCell(cell_no++);
+                updated_by.innerHTML = moment(orderActions[i]['datetime']).format('DD/MM/YYYY HH:MM:SS');
+                var action = row.insertCell(cell_no++);
+                action.innerHTML = orderActions[i]['actor'];
+            }
+        }
+        // function popEmployeeTable(employees) {
+        // 	console.log(employees[0]['order_id']);
+        // 	var employeeTable = document.getElementById('employees').getElementsByTagName('tbody')[0];
+        // 	for (var i = 0; i<employees.length; i++) {
+        // 		console.log(employees[i]);
+        // 		var row = employeeTable.insertRow(i);
+        // 		var cell_no = 0;
+        // 		var order_id = row.insertCell(cell_no++);
+        // 		order_id.innerHTML = employees[i]['order_id'];
+        // 		var buyer_id = row.insertCell(cell_no++);
+        // 		buyer_id.innerHTML = employees[i]['buyer_id'];
+        // 		var order_date = row.insertCell(cell_no++);
+        // 		order_date.innerHTML = employees[i]['order_date'];
+        // 		var last_update_date = row.insertCell(cell_no++);
+        // 		last_update_date.innerHTML = employees[i]['last_update_date'];
+        // 		var last_updated_by = row.insertCell(cell_no++);
+        // 		last_updated_by.innerHTML = employees[i]['last_updated_by'];
+        // 		var status = row.insertCell(cell_no++);
+        // 		status.innerHTML = employees[i]['status'];
+        // 	}
+        // }
+        // Set up event listener for when the DOM is fully loaded
+        $(document).ready(function() {
+            var ctx = document.getElementById('canvas').getContext('2d');
+			window.myLine = new Chart(ctx, config);
+            // Select the provided event, or the first event as appropriate
+            select(selected);
+            
+            $(".side-nav-item").click(function(e) {
+                select($(this).attr('id').substring(3));
+            });
+            // call endpoint for list of orders
+            // var employees = []
+            var orders = JSON.parse({{orders|tojson}});
+            // popEmployeeTable(employees);
+            popOrdersTable(orders);
+            // popOrderDetailsTable(orderActions);
+            var ordersTable = $('#orders').DataTable();
+            var employeesTable = $('#employees').DataTable();
+            var orderDetails = $('#orderDetails').DataTable({searching: false, paging: false, info: false});
+
+            $('#orders tbody').on('click', 'tr', function () {
+                var data = ordersTable.row(this).data();
+                var detailsModal = $('#detailsModal');
+                
+                //detailsModal.find('.modal-body').text(data[0]);
                 detailsModal.modal('show');
                 $.getJSON('/transactions/'+data[0], function(result){
                     if (result) {
@@ -223,9 +299,9 @@
                         $('.odd').hide();
                     }
                 })
-        		//alert( 'You clicked on '+data[0]+'\'s row' );
-    		});	
-		});
+                //alert( 'You clicked on '+data[0]+'\'s row' );
+            });	
+        });
     </script>
     </body>
     </html>
