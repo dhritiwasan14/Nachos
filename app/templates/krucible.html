@@ -8,8 +8,10 @@
 	<link rel="stylesheet" type="text/css" href="../static/font.css">
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="../static/krucible.css">
-	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-	<link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
 </head>
 <body>
 	<!-- Static navbar -->
@@ -64,17 +66,15 @@
 					</table>
 				</div>
 				<div id="panEmployees" class="pane">
-					<table id="employees" class="table">
-						<thead>
-							<th>Order ID</th>
-							<th>Buyer ID</th>
-							<th>Date Ordered</th>
-							<th>Rating</th>
-							<th>Action</th>
-							<th>Timestamp</th>
-						</thead>
-						<tbody></tbody>
-					</table>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon2"><i class="fas fa-search"></i></span>
+                        </div>
+                        <input type="text" id="myInput" class="form-control" placeholder="Employee Name" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                    </div>
+                    <div class="autocomplete">
+
+                    </div>
 				</div>
 			</div>
 		</div>
@@ -93,16 +93,25 @@
 	      		</div>
 	      		<div class="modal-body">
 	     			<img src="https://images.unsplash.com/photo-1449247666642-264389f5f5b1?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=9b356ab939c00d2d4f3fb8ee27df53ba&auto=format&fit=crop&w=800&q=60" class="img-thumbnail">
+	     			
 	     			<table class="table" id="orderDetails">
 	     				<thead>
-	     					<th>Employee ID</th>
+	     					<th>Line Item</th>
+	     					<th>Item Name</th>
+	     					<th>Quantity</th>
+	     					<th>Price</th>
+	     				</thead>
+	     				<tbody></tbody>
+	     			</table>
+
+	     			<table class="table" id="orderTransactions">
+	     				<thead>
+	     					<th>Actor ID</th>
 	     					<th>Timestamp</th>
 	     					<th>Updated By</th>
-	     					<th>Action</th>
+	     					<th>Name</th>
 	     				</thead>
-	     				<tbody>
-	     					
-	     				</tbody>
+	     				<tbody></tbody>
 	     			</table>
       			</div>
 	      		<div class="modal-footer">
@@ -120,6 +129,8 @@
 	<script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
     <script>
+
+        
         var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 		var config = {
 			type: 'line',
@@ -127,32 +138,11 @@
 				labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
 				datasets: [{
 					label: 'My First dataset',
-					backgroundColor: window.chartColors.red,
-					borderColor: window.chartColors.red,
-					data: [
-						randomScalingFactor(),
-						randomScalingFactor(),
-						randomScalingFactor(),
-						randomScalingFactor(),
-						randomScalingFactor(),
-						randomScalingFactor(),
-						randomScalingFactor()
-					],
-					fill: false,
-				}, {
-					label: 'My Second dataset',
-					fill: false,
-					backgroundColor: window.chartColors.blue,
-					borderColor: window.chartColors.blue,
-					data: [
-						randomScalingFactor(),
-						randomScalingFactor(),
-						randomScalingFactor(),
-						randomScalingFactor(),
-						randomScalingFactor(),
-						randomScalingFactor(),
-						randomScalingFactor()
-					],
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    pointBackgroundColor: 'rgba(255, 99, 132, 0.2)',
+					borderColor: 'rgba(255,99,132,1)',
+					data: [12, 19, 3, 5, 2, 3],
+					fill: true,
 				}]
 			},
 			options: {
@@ -211,7 +201,6 @@
             }
         }
         function popOrdersTable(orders) {
-            console.log(orders[0]['order_id']);
             var orderTable = document.getElementById('orders').getElementsByTagName('tbody')[0];
             for (var i = 0; i<orders.length; i++) {
                 var row = orderTable.insertRow(i);
@@ -229,10 +218,26 @@
                 var status = row.insertCell(cell_no++);
                 status.innerHTML = orders[i]['status'];
             }
+            console.log($('#orders'));
+            $('#orders').DataTable();
         }
         function popOrderDetailsTable(orderActions) {
-            console.log(orderActions[0]['employee_id']);
             var orderDetailsTable = document.getElementById('orderDetails').getElementsByTagName('tbody')[0];
+            for (var i = 0; i < orderActions['product_id'].length; i++) {
+                var row = orderDetailsTable.insertRow(i);
+                var cell_no = 0;
+                var product_id = row.insertCell(cell_no++);
+                product_id.innerHTML = i;
+                var name = row.insertCell(cell_no++);
+                name.innerHTML = orderActions['product_names'][i];
+                var quantity = row.insertCell(cell_no++);
+                quantity.innerHTML = orderActions['product_quantities'][i];
+                var prices = row.insertCell(cell_no++);
+                prices.innerHTML = orderActions['product_prices'][i];
+            }
+        }
+        function popOrderTransactionsTable(orderActions) {
+            var orderDetailsTable = document.getElementById('orderTransactions').getElementsByTagName('tbody')[0];
             for (var i = 0; i<orderActions.length; i++) {
                 var row = orderDetailsTable.insertRow(i);
                 var cell_no = 0;
@@ -246,27 +251,33 @@
                 action.innerHTML = orderActions[i]['actor'];
             }
         }
-        // function popEmployeeTable(employees) {
-        // 	console.log(employees[0]['order_id']);
-        // 	var employeeTable = document.getElementById('employees').getElementsByTagName('tbody')[0];
-        // 	for (var i = 0; i<employees.length; i++) {
-        // 		console.log(employees[i]);
-        // 		var row = employeeTable.insertRow(i);
-        // 		var cell_no = 0;
-        // 		var order_id = row.insertCell(cell_no++);
-        // 		order_id.innerHTML = employees[i]['order_id'];
-        // 		var buyer_id = row.insertCell(cell_no++);
-        // 		buyer_id.innerHTML = employees[i]['buyer_id'];
-        // 		var order_date = row.insertCell(cell_no++);
-        // 		order_date.innerHTML = employees[i]['order_date'];
-        // 		var last_update_date = row.insertCell(cell_no++);
-        // 		last_update_date.innerHTML = employees[i]['last_update_date'];
-        // 		var last_updated_by = row.insertCell(cell_no++);
-        // 		last_updated_by.innerHTML = employees[i]['last_updated_by'];
-        // 		var status = row.insertCell(cell_no++);
-        // 		status.innerHTML = employees[i]['status'];
-        // 	}
-        // }
+        function popEmployeeTable(employees) {
+        	console.log(employees[0]['order_id']);
+        	var employeeTable = document.getElementById('employees').getElementsByTagName('tbody')[0];
+        	for (var i = 0; i<employees.length; i++) {
+        		console.log(employees[i]);
+        		var row = employeeTable.insertRow(i);
+        		var cell_no = 0;
+        		var order_id = row.insertCell(cell_no++);
+        		order_id.innerHTML = employees[i]['order_id'];
+        		var buyer_id = row.insertCell(cell_no++);
+        		buyer_id.innerHTML = employees[i]['buyer_id'];
+        		var order_date = row.insertCell(cell_no++);
+        		order_date.innerHTML = employees[i]['order_date'];
+        		var last_update_date = row.insertCell(cell_no++);
+        		last_update_date.innerHTML = employees[i]['last_update_date'];
+        		var last_updated_by = row.insertCell(cell_no++);
+        		last_updated_by.innerHTML = employees[i]['last_updated_by'];
+        		var status = row.insertCell(cell_no++);
+        		status.innerHTML = employees[i]['status'];
+        	}
+        }
+
+        $('.emp-search').change(function() {
+            console.log('input has changed');
+
+        });
+
         // Set up event listener for when the DOM is fully loaded
         $(document).ready(function() {
             var ctx = document.getElementById('canvas').getContext('2d');
@@ -279,29 +290,134 @@
             });
             // call endpoint for list of orders
             // var employees = []
-            var orders = JSON.parse({{orders|tojson}});
+            $.getJSON('/orders', function(result) {
+                if (result) {
+                    popOrdersTable(result);
+                }
+            })
+            
             // popEmployeeTable(employees);
-            popOrdersTable(orders);
             // popOrderDetailsTable(orderActions);
-            var ordersTable = $('#orders').DataTable();
-            var employeesTable = $('#employees').DataTable();
-            var orderDetails = $('#orderDetails').DataTable({searching: false, paging: false, info: false});
-
+            
             $('#orders tbody').on('click', 'tr', function () {
-                var data = ordersTable.row(this).data();
+                console.log($(this).find('td'));
+                var data = $(this).find('td').eq(0).text()
+
                 var detailsModal = $('#detailsModal');
                 
                 //detailsModal.find('.modal-body').text(data[0]);
                 detailsModal.modal('show');
-                $.getJSON('/transactions/'+data[0], function(result){
+                $.getJSON('/transactions/'+data, function(result){
                     if (result) {
-                        popOrderDetailsTable(result);
-                        $('.odd').hide();
+                        popOrderTransactionsTable(result['transactions']);
+                        popOrderDetailsTable(result['order']);
                     }
                 })
-                //alert( 'You clicked on '+data[0]+'\'s row' );
-            });	
+    		});	
         });
+        
+
+        function autocomplete(inp, arr) {
+            /*the autocomplete function takes two arguments,
+            the text field element and an array of possible autocompleted values:*/
+            var currentFocus;
+            /*execute a function when someone writes in the text field:*/
+            inp.addEventListener("input", function(e) {
+                var a, b, i, val = this.value;
+                /*close any already open lists of autocompleted values*/
+                closeAllLists();
+                if (!val) { return false;}
+                currentFocus = -1;
+                /*create a DIV element that will contain the items (values):*/
+                a = document.createElement("DIV");
+                a.setAttribute("id", this.id + "autocomplete-list");
+                a.setAttribute("class", "autocomplete-items");
+                /*append the DIV element as a child of the autocomplete container:*/
+                this.parentNode.appendChild(a);
+                /*for each item in the array...*/
+                for (i = 0; i < arr.length; i++) {
+                    /*check if the item starts with the same letters as the text field value:*/
+                    if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                    /*create a DIV element for each matching element:*/
+                    b = document.createElement("DIV");
+                    /*make the matching letters bold:*/
+                    b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                    b.innerHTML += arr[i].substr(val.length);
+                    /*insert a input field that will hold the current array item's value:*/
+                    b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                    /*execute a function when someone clicks on the item value (DIV element):*/
+                        b.addEventListener("click", function(e) {
+                        /*insert the value for the autocomplete text field:*/
+                        inp.value = this.getElementsByTagName("input")[0].value;
+                        /*close the list of autocompleted values,
+                        (or any other open lists of autocompleted values:*/
+                        closeAllLists();
+                    });
+                    a.appendChild(b);
+                    }
+                }
+            });
+            /*execute a function presses a key on the keyboard:*/
+            inp.addEventListener("keydown", function(e) {
+                var x = document.getElementById(this.id + "autocomplete-list");
+                if (x) x = x.getElementsByTagName("div");
+                if (e.keyCode == 40) {
+                    /*If the arrow DOWN key is pressed,
+                    increase the currentFocus variable:*/
+                    currentFocus++;
+                    /*and and make the current item more visible:*/
+                    addActive(x);
+                } else if (e.keyCode == 38) { //up
+                    /*If the arrow UP key is pressed,
+                    decrease the currentFocus variable:*/
+                    currentFocus--;
+                    /*and and make the current item more visible:*/
+                    addActive(x);
+                } else if (e.keyCode == 13) {
+                    /*If the ENTER key is pressed, prevent the form from being submitted,*/
+                    e.preventDefault();
+                    if (currentFocus > -1) {
+                    /*and simulate a click on the "active" item:*/
+                    if (x) x[currentFocus].click();
+                    }
+                }
+            });
+            function addActive(x) {
+                /*a function to classify an item as "active":*/
+                if (!x) return false;
+                /*start by removing the "active" class on all items:*/
+                removeActive(x);
+                if (currentFocus >= x.length) currentFocus = 0;
+                if (currentFocus < 0) currentFocus = (x.length - 1);
+                /*add class "autocomplete-active":*/
+                x[currentFocus].classList.add("autocomplete-active");
+            }
+            function removeActive(x) {
+                /*a function to remove the "active" class from all autocomplete items:*/
+                for (var i = 0; i < x.length; i++) {
+                x[i].classList.remove("autocomplete-active");
+                }
+            }
+            function closeAllLists(elmnt) {
+                /*close all autocomplete lists in the document,
+                except the one passed as an argument:*/
+                var x = document.getElementsByClassName("autocomplete-items");
+                for (var i = 0; i < x.length; i++) {
+                if (elmnt != x[i] && elmnt != inp) {
+                x[i].parentNode.removeChild(x[i]);
+                }
+            }
+            }
+            /*execute a function when someone clicks in the document:*/
+            document.addEventListener("click", function (e) {
+                closeAllLists(e.target);
+            });
+        }
+        $.getJSON('/employees', function(result) {
+            if (result) {
+                autocomplete(document.getElementById("myInput"), result);
+            }
+        })
     </script>
     </body>
     </html>

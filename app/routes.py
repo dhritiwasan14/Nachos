@@ -13,13 +13,16 @@ app.config['MONGO_URI'] = "mongodb://localhost:27017/nachos"
 db = MongoEngine(app)
 app.config['SECRET_KEY'] = 'cookie'
 
+
 class User(db.Document):
     meta = {'collection': 'users'}
     membership_id = db.StringField(max_length=30)
     password = db.StringField()
     uuid = db.StringField()
     orders = db.ListField()
-    auth = db.StringField(default='user') # types include - employee, admin, user
+    name = db.StringField()
+    auth = db.StringField(default='user')  # types include - employee, admin, user
+
 
 class Product(db.Document):
     meta = {'collection': 'products'}
@@ -32,15 +35,18 @@ class Product(db.Document):
     image = db.URLField()
     best_seller = db.BooleanField()
 
-class Order(db.Document): # ordered, packed, onboard, arrive, completed
+
+class Order(db.Document):  # ordered, packed, onboard, arrive, completed
     meta = {'collection': 'orders'}
     order_id = db.StringField()
-    product = db.IntField()
+    product = db.ListField(db.DictField())
     created = db.DateTimeField(default=datetime.utcnow)
     last_update = db.DateTimeField(default=datetime.utcnow)
     status = db.StringField()
     user = db.StringField()
     last_updated_by = db.StringField()
+    color = db.StringField()
+    flight_no = db.StringField()
 
 class Transaction(db.Document):
     meta = {'collection': 'transactions'}
@@ -50,6 +56,15 @@ class Transaction(db.Document):
     datetime = db.DateTimeField(default=datetime.utcnow())
     actor = db.StringField()
 
+def create_small_order_json(order):
+    return {
+        'id': order.id,
+        'user': order.user,
+        'created': order.created,
+        'last_update': order.last_update,
+        'last_updated_by': order.last_updated_by,
+        'status': order.status, 
+    }
 
 def create_json(obj):
     if isinstance(obj, Product):
@@ -65,15 +80,29 @@ def create_json(obj):
         }
     elif isinstance(obj, Order):
         order = obj
+        products = [Product.objects(id=dict(product)['id']).first() for product in order.product]
         return {
-            'id': order.order_id, 
-            'product_id': order.product,
-            'product': Product.objects(id=order.product).first()['name'],
+            'id': order.order_id,
+            'product_id': [prod.id for prod in products],
+            'product_names': [prod.name for prod in products],
+            'product_images': [prod.image for prod in products],
+            'product_descr': [prod.content for prod in products],
+            'product_prices': [prod.price for prod in products],
+            'product_miles': [prod.miles for prod in products],
+            'product_quantities': [product['quantity'] for product in order.product],
             'last_update': str(order.last_update),
             'created': str(order.created),
             'last_updated_by': order.last_updated_by,
             'status': order.status,
             'user': order.user,
+            'color': order.color,
+            'flight_no': order.flight_no,
+            'price': sum([float(prod.price[1:]) for prod in products])
+        }
+    elif isinstance(obj, User):
+        user = obj
+        return {
+            'name': name
         }
     else:
         trans = obj
@@ -84,6 +113,7 @@ def create_json(obj):
             'datetime': str(trans.datetime),
             'actor': trans.actor
         }
+
 
 def no_user_with_session_id(uid=''):
     existing_user = User.objects(uuid=uid).first()
@@ -98,12 +128,14 @@ def login():
         if check_password_hash(check_user.first()['password'], request.form.get('password')):
             uid = str(uuid.uuid4().int)
             check_user.update_one(uuid=uid)
-            return uid
-    return 'FAILED'
+            return json.dumps({'success': True, 'message': '', 'session_id': uid, 'name':check_user.first()['name']})
+    return json.dumps({'success': False, 'message': 'Invalid Username or Password', 'auth':check_user.auth})
+
 
 @app.route('/signup', methods=['POST'])
 def sign_up():
     msg = 'SUCCESS'
+    name = request.form.get('name')
     mem_id = request.form.get('mem_id')
     if not mem_id:
         return '404'
@@ -111,12 +143,13 @@ def sign_up():
         existing_user = User.objects(membership_id=mem_id).first()
         if not existing_user:
             hash_pass = generate_password_hash(request.form.get('password'), method='sha256')
-            user = User(request.form.get('mem_id'), hash_pass, None).save()
+            user = User(request.form.get('mem_id'), hash_pass, name=name).save()
         else:
             msg = 'FAILED, USER ALREADY EXISTS'
     except Exception as e:
-        msg = f'Failed with error response : {e}' 
+        msg = f'Failed with error response : {e}'
     return msg
+
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -124,7 +157,8 @@ def logout():
         return 'Sorry, you are not authenticated.'
     User.objects(uuid=request.form.get('uid')).update_one(uuid=None)
 
-@app.route('/product/<pid>', methods = ['GET', 'POST'])
+
+@app.route('/product/<pid>', methods=['GET', 'POST'])
 def product(pid):
     if no_user_with_session_id(request.form.get('uid')):
         return 'Sorry, you are not authenticated.'
@@ -139,12 +173,12 @@ def products():
     products = Product.objects
     return json.dumps([create_json(product) for product in products])
 
+
 @app.route('/add_product', methods=['POST'])
 def add_product():
     if no_user_with_session_id(request.form.get('uid')):
         return 'Sorry, you are not authenticated.'
     form = request.form
-    print (form.get('image'))
     product = Product(
         form.get('id'),
         form.get('name'),
@@ -157,32 +191,41 @@ def add_product():
     print (Product.objects.count())
     return 'SAVED' if product else None
 
+
 @app.route('/add_order', methods=['POST'])
 def add_order():
     if no_user_with_session_id(request.form.get('uid')):
-        return 'Sorry, you are not authenticated.'
-    product_id = request.form.get('product_id')
+        return {'order_id': order_id, 'success': False, 'message': 'Sorry, you are not authenticated.'}
+    products = json.loads(request.form.get('products'))
     user_id = request.form.get('uid')
     user = User.objects(uuid=user_id)
     datetime_now = datetime.now()
-    if product_id and user.first():
+    if products and user.first():
         order_id = str(uuid.uuid4())[:8]
-        order = Order(order_id=order_id, product=int(product_id), created=datetime_now, last_update=datetime_now, status='ordered', user=user.first()['membership_id'], last_updated_by=user.first()['membership_id']).save()
+        order = Order(
+            order_id=order_id, product=products, 
+            created=datetime_now, last_update=datetime_now, 
+            status='Ordered', user=user.first()['membership_id'], 
+            last_updated_by=user.first()['membership_id'], color=request.form.get('color'),
+            flight_no=request.form.get('flight_no')
+        ).save()
         user.update_one(orders=user.first()['orders'] + [order.id])
-        trans = add_transaction(order_id, 'ordered', user.first()['membership_id'])
-        if trans:
-            return order_id
+        trans = add_transaction(order_id, 'Ordered', user.first()['membership_id'])
+        return json.dumps({'order_id': order_id, 'success': True, 'message': '', 'session_id':user_id})
     return 'FAILED'
+
 
 def get_order(order_id):
     return Order.objects(id=order_id).first()
+
 
 @app.route('/view_order', methods=['POST'])
 def view_order():
     if no_user_with_session_id(request.form.get('uid')):
         return 'Sorry, you are not authenticated.'
-    orders = User.objects(uuid=request.form.get('uid')).first()['orders']
+    orders = User.objects(uuid=request.form.get('uid')).first()['orders'][::-1]
     return json.dumps([create_json(get_order(order)) for order in orders])
+
 
 @app.route('/update_order', methods=['POST'])
 def update_order():
@@ -202,12 +245,13 @@ def update_order():
             return 'SUCCESS'
     return 'FAILED'
 
+
 def add_transaction(order_id, status, actor):
     trans = Transaction(order_id=order_id, action=status, actor=actor).save()
     return trans
 
 
-@app.route('/orders', methods=['POST'])
+@app.route('/orders', methods=['GET', 'POST'])
 def view_all_orders():
     # uuid = request.form.get('uid')
     # if uuid:
@@ -218,9 +262,10 @@ def view_all_orders():
     #     return 'NO ADMIN PRIVELEGES '
     # return 'FAILED'
 
+
 @app.route('/transactions', methods=['POST'])
 def view_all_transactions():
-#     uuid = request.form.get('uid')
+    #     uuid = request.form.get('uid')
     # if uuid:
     #     admin = User.objects(uuid=uuid).first()
     #     if admin['auth'] == 'admin':
@@ -232,6 +277,7 @@ def view_all_transactions():
 # endpoint to get employee by employee ID
 # endpoint for krucible homepage
 # endpoint for dashboard, employees and orders (krucible)
+
 
 @app.route('/krucible/login', methods=['GET', 'POST'])
 def krucible_login():
@@ -245,9 +291,7 @@ def krucible_login():
 
 @app.route('/krucible/dashboard', methods=['GET'])
 def dashboard():
-    orders = Order.objects
-    orders = json.dumps([create_json(order) for order in orders])
-    return render_template('krucible.html', orders=orders)
+    return render_template('krucible.html')
 
 
 @app.route('/bestsellers', methods=['GET'])
@@ -264,11 +308,28 @@ def bestsellers():
             print (e)
     return json.dumps([create_json(product) for product in best_sellers])
 
+
 @app.route('/transactions/<order_id>', methods=['GET'])
 def all_transactions_for_order(order_id):
     transactions = Transaction.objects
     timeline = []
     for trans in transactions:
         if trans.order_id == order_id:
+            print (trans)
             timeline.append(trans)
-    return json.dumps([create_json(trans) for trans in timeline])
+    return json.dumps(
+        {
+            'transactions':[create_json(trans) for trans in timeline],
+            'order': create_json(Order.objects(order_id=order_id).first())
+        }
+    )
+
+
+@app.route('/employees', methods=['GET'])
+def get_all_employees():
+    users = User.objects
+    employees = []
+    for user in users:
+        if user.auth == 'employee':
+            employees.append(user)
+    return json.dumps([emp.name for emp in employees])
