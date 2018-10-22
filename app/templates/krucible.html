@@ -86,13 +86,24 @@
 	 	<div class="modal-dialog" role="document">
 	    	<div class="modal-content">
 	      		<div class="modal-header">
-	        		<h5 class="modal-title" id="detailsModalLabel">Modal Title</h5>
+	        		<h5 class="modal-title" id="detailsModalLabel">Order Details</h5>
         			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
           				<span aria-hidden="true">&times;</span>
         			</button>
 	      		</div>
 	      		<div class="modal-body">
 	     			<img src="https://images.unsplash.com/photo-1449247666642-264389f5f5b1?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=9b356ab939c00d2d4f3fb8ee27df53ba&auto=format&fit=crop&w=800&q=60" class="img-thumbnail">
+	     			<table class="table" id="orderDetails">
+	     				<thead>
+	     					<th>Employee ID</th>
+	     					<th>Timestamp</th>
+	     					<th>Updated By</th>
+	     					<th>Action</th>
+	     				</thead>
+	     				<tbody>
+	     					
+	     				</tbody>
+	     			</table>
       			</div>
 	      		<div class="modal-footer">
 	        		<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
@@ -143,6 +154,22 @@
 				last_updated_by.innerHTML = orders[i]['last_updated_by'];
 				var status = row.insertCell(cell_no++);
 				status.innerHTML = orders[i]['status'];
+			}
+		}
+		function popOrderDetailsTable(orderActions) {
+			console.log(orderActions[0]['employee_id']);
+			var orderDetailsTable = document.getElementById('orderDetails').getElementsByTagName('tbody')[0];
+			for (var i = 0; i<orderActions.length; i++) {
+				var row = orderDetailsTable.insertRow(i);
+				var cell_no = 0;
+				var employee_id = row.insertCell(cell_no++);
+				employee_id.innerHTML = orderActions[i]['employee_id'];
+				var timestamp = row.insertCell(cell_no++);
+				timestamp.innerHTML = orderActions[i]['timestamp'];
+				var updated_by = row.insertCell(cell_no++);
+				updated_by.innerHTML = orderActions[i]['updated_by'];
+				var action = row.insertCell(cell_no++);
+				action.innerHTML = orderActions[i]['action'];
 			}
 		}
 		// function popEmployeeTable(employees) {
@@ -314,16 +341,37 @@
 				}
 				
 			];
+			var orderActions = [
+				{
+					'employee_id': '1234567',
+					'timestamp': '12 Oct 2018 10:00 AM',
+					'updated_by': 'Rayson Lim',
+					'action': 'Pack'
+				},
+				{
+					'employee_id': '1234567',
+					'timestamp': '12 Oct 2018 10:00 AM',
+					'updated_by': 'Rayson Lim',
+					'action': 'Load'
+				},
+				{
+					'employee_id': '1234567',
+					'timestamp': '12 Oct 2018 10:00 AM',
+					'updated_by': 'Rayson Lim',
+					'action': 'Deliver'
+				}
+			];
 			// popEmployeeTable(employees);
 			popOrdersTable(orders);
+			popOrderDetailsTable(orderActions);
 			var ordersTable = $('#orders').DataTable();
 			var employeesTable = $('#employees').DataTable();
+			var orderDetails = $('#orderDetails').DataTable({searching: false, paging: false, info: false});
 
 			$('#orders tbody').on('click', 'tr', function () {
         		var data = ordersTable.row(this).data();
         		var detailsModal = $('#detailsModal');
   				
-  				detailsModal.find('.modal-title').text(data[0]);
   				//detailsModal.find('.modal-body').text(data[0]);
         		detailsModal.modal('show');
         		//alert( 'You clicked on '+data[0]+'\'s row' );

@@ -112,7 +112,13 @@ tbody tr:hover {
 	background: #f6f6f6;
 }
 
-@media (min-width: 576px)
 .modal-dialog {
     max-width: 800px;
+}
+
+.img-thumbnail {
+	display: block;
+	max-height: 300px;
+	margin-left: auto;
+	margin-right: auto;
 }
