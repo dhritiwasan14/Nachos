@@ -30,6 +30,7 @@ class Product(db.Document):
     price = db.StringField()
     miles = db.StringField()
     image = db.URLField()
+    best_seller = db.BooleanField()
 
 class Order(db.Document): # ordered, packed, onboard, arrive, completed
     meta = {'collection': 'orders'}
@@ -235,3 +236,23 @@ def krucible_login():
                 return render_template('krucible.html')
         return render_template('login.html', msg="Error")
     return render_template('login.html')
+
+
+@app.route('/krucible/dashboard', methods=['GET'])
+def dashboard():
+    return render_template('krucible.html')
+
+
+@app.route('/bestsellers', methods=['GET'])
+def bestsellers():
+    # if no_user_with_session_id(request.form.get('uid')):
+    #     return 'Sorry, you are not authenticated.'
+    products = Product.objects
+    best_sellers = []
+    for product in products:
+        try:
+            if product.best_seller:
+                best_sellers.append(product)
+        except Exception as e:
+            print (e)
+    return json.dumps([create_json(product) for product in best_sellers])
