@@ -171,7 +171,7 @@ def products():
     # if no_user_with_session_id(request.form.get('uid')):
     #     return 'Sorry, you are not authenticated.'
     products = Product.objects
-    return json.dumps([create_json(product) for product in products])
+    return json.dumps([create_json(product) for product in products[::-1]])
 
 
 @app.route('/add_product', methods=['POST'])
