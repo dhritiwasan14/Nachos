@@ -128,8 +128,8 @@ def login():
         if check_password_hash(check_user.first()['password'], request.form.get('password')):
             uid = str(uuid.uuid4().int)
             check_user.update_one(uuid=uid)
-            return json.dumps({'success': True, 'message': '', 'session_id': uid, 'name':check_user.first()['name']})
-    return json.dumps({'success': False, 'message': 'Invalid Username or Password', 'auth':check_user.auth})
+            return json.dumps({'success': True, 'message': '', 'session_id': uid, 'name':check_user.first()['name'], 'auth': check_user.auth})
+    return json.dumps({'success': False, 'message': 'Invalid Username or Password'})
 
 
 @app.route('/signup', methods=['POST'])
@@ -333,3 +333,23 @@ def get_all_employees():
         if user.auth == 'employee':
             employees.append(user)
     return json.dumps([emp.name for emp in employees])
+
+
+@app.route('/unpacked_orders', methods=['GET'])
+def get_all_unpacked_orders():
+    orders = Order.objects
+    unpacked_orders = []
+    for order in orders:
+        if order.status == "Ordered":
+            unpacked_orders.append(order)
+    return json.dumps([create_json(order) for order in unpacked_orders])
+
+
+@app.route('/orders_by_flight/<flight_no>', methods=['GET'])
+def get_orders_by_flight(flight_no):
+    orders = Order.objects
+    orders_by_flight = []
+    for order in orders:
+        if order.flight_no == flight_no:
+            orders_by_flight.append(order)
+    return json.dumps([create_json(order) for order in orders_by_flight])
