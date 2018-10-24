@@ -128,7 +128,7 @@ def login():
         if check_password_hash(check_user.first()['password'], request.form.get('password')):
             uid = str(uuid.uuid4().int)
             check_user.update_one(uuid=uid)
-            return json.dumps({'success': True, 'message': '', 'session_id': uid, 'name':check_user.first()['name'], 'auth': check_user.auth})
+            return json.dumps({'success': True, 'message': '', 'session_id': uid, 'name':check_user.first()['name'], 'auth': check_user.first()["auth"]})
     return json.dumps({'success': False, 'message': 'Invalid Username or Password'})
 
 
