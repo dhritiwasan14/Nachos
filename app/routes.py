@@ -352,4 +352,4 @@ def get_orders_by_flight(flight_no):
     for order in orders:
         if order.flight_no == flight_no:
             orders_by_flight.append(order)
-    return json.dumps([create_json(order) for order in orders_by_flight])
+    return json.dumps([create_json(order) for order in orders_by_flight][::-1])
