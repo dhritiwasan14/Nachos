@@ -43,7 +43,8 @@
 					<table class="table table-hover" id="side-nav-table" border="0">
 						<tr id="navDashboard" class="side-nav-item"><td><img src="../static/img/dashboard-24px.png" class="nav-item-icon" /><span class="nav-item-text">Dashboard</span></td></tr>
 						<tr id="navOrders" class="side-nav-item"><td><img src="../static/img/orders-24px.png" class="nav-item-icon" /><span class="nav-item-text">Orders</span></td></tr>
-						<tr id="navEmployees" class="side-nav-item"><td><img src="../static/img/employees-24px.png" class="nav-item-icon" /><span class="nav-item-text">Employees</span></td></tr>
+                        <tr id="navEmployees" class="side-nav-item"><td><img src="../static/img/employees-24px.png" class="nav-item-icon" /><span class="nav-item-text">Employees</span></td></tr>
+                        <tr id="navIssues" class="side-nav-item"><td><i class="fas fa-times-circle nav-item-icon"></i><span class="nav-item-text">Issues</span></td></tr>
 					</table>
 				</div>
 			</div>
@@ -71,6 +72,18 @@
                             <input id="myInput" type="text" name="name" placeholder="Employee Name">
                         </div>
                     </div>
+                </div>
+                <div id="panIssues" class="pane">
+                    <table id="issues" class="table">
+                        <thead>
+							<th>Order ID</th>
+							<th>Buyer ID</th>
+							<th>Date Ordered (GMT)</th>
+							<th>Issue Registered</th>
+							<th>Status</th>
+						</thead>
+						<tbody></tbody>
+                    </table>
 				</div>
 			</div>
 		</div>
@@ -116,7 +129,21 @@
 	    	</div>
         </div>
 	</div>
-    
+    <div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+           <div class="modal-content">
+                 <div class="modal-header">
+                   <h5 class="modal-title" id="detailsModalLabel">Message</h5>
+                 </div>
+                 <div class="modal-body">
+                    
+                 </div>
+                 <div class="modal-footer">
+                   <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                 </div>
+           </div>
+       </div>
+   </div>
 	<!-- javascripts -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
@@ -192,9 +219,6 @@
         function loadPane(paneId) {
             $(".pane").hide();
             $("#" + paneId).show();
-            if (paneId == 'panDashboard') {
-                
-            }
         }
         function popOrdersTable(orders) {
             var orderTable = document.getElementById('orders').getElementsByTagName('tbody')[0];
@@ -202,7 +226,7 @@
                 var row = orderTable.insertRow(i);
                 var cell_no = 0;
                 var order_id = row.insertCell(cell_no++);
-                order_id.innerHTML = orders[i]['id'];
+                order_id.innerHTML = orders[i]['id'].toUpperCase();
                 var buyer_id = row.insertCell(cell_no++);
                 buyer_id.innerHTML = orders[i]['user'];
                 var order_date = row.insertCell(cell_no++);
@@ -238,7 +262,7 @@
                 var row = orderDetailsTable.insertRow(i);
                 var cell_no = 0;
                 var employee_id = row.insertCell(cell_no++);
-                employee_id.innerHTML = orderActions[i]['id'];
+                employee_id.innerHTML = orderActions[i]['id'].toUpperCase();
                 var timestamp = row.insertCell(cell_no++);
                 timestamp.innerHTML = orderActions[i]['action'];
                 var updated_by = row.insertCell(cell_no++);
@@ -248,14 +272,13 @@
             }
         }
         function popEmployeeTable(employees) {
-        	console.log(employees[0]['order_id']);
         	var employeeTable = document.getElementById('employees').getElementsByTagName('tbody')[0];
         	for (var i = 0; i<employees.length; i++) {
         		console.log(employees[i]);
         		var row = employeeTable.insertRow(i);
         		var cell_no = 0;
         		var order_id = row.insertCell(cell_no++);
-        		order_id.innerHTML = employees[i]['order_id'];
+        		order_id.innerHTML = employees[i]['order_id'].toUpperCase();
         		var buyer_id = row.insertCell(cell_no++);
         		buyer_id.innerHTML = employees[i]['buyer_id'];
         		var order_date = row.insertCell(cell_no++);
@@ -268,7 +291,24 @@
         		status.innerHTML = employees[i]['status'];
         	}
         }
-
+        function popIssuesTable(issues) {
+            var issueTable = document.getElementById('issues').getElementsByTagName('tbody')[0];
+            for (var i = 0; i < issues.length; i++) {
+                var row = issueTable.insertRow(i);
+                var cell_no = 0;
+                var order_id = row.insertCell(cell_no++);
+                order_id.innerHTML = issues[i]['id'].toUpperCase();
+                var buyer_id = row.insertCell(cell_no++);
+                buyer_id.innerHTML = issues[i]['user'];
+                var order_date = row.insertCell(cell_no++);
+                order_date.innerHTML = moment(issues[i]['created']).format('DD/MM/YYYY HH:MM:SS');
+                var issue_registered = row.insertCell(cell_no++);
+                issue_registered.innerHTML = issues[i]['issue'];
+                var status = row.insertCell(cell_no++);
+                status.innerHTML = issues[i]['status'];
+            }
+            $('#issues').DataTable();
+        }
         $('.emp-search').change(function() {
             console.log('input has changed');
 
@@ -310,8 +350,17 @@
                     }
                 })
     		});	
+            $('#issues tbody').on('click', 'tr', function () {
+                var data = $(this).find('td').eq(0).text()
+
+                var messageModal = $('#messageModal');
+                
+                //detailsModal.find('.modal-body').text(data[0]);
+                messageModal.modal('show');
+    		});	
         });
         
+
 
         function autocomplete(inp, arr) {
             /*the autocomplete function takes two arguments,
@@ -412,6 +461,11 @@
         $.getJSON('/employees', function(result) {
             if (result) {
                 autocomplete(document.getElementById("myInput"), result);
+            }
+        })
+        $.getJSON('/issues', function(result) {
+            if (result) {
+                popIssuesTable(result);
             }
         })
     </script>

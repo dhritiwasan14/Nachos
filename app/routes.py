@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 
 from app import app
-from flask import render_template, request, make_response, Flask
+from flask import render_template, request, make_response, Flask, redirect
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mongoengine import MongoEngine, Document
 from flask import jsonify
@@ -47,6 +47,8 @@ class Order(db.Document):  # ordered, packed, onboard, arrive, completed
     last_updated_by = db.StringField()
     color = db.StringField()
     flight_no = db.StringField()
+    issue = db.StringField()
+    message = db.StringField()
 
 class Transaction(db.Document):
     meta = {'collection': 'transactions'}
@@ -97,7 +99,9 @@ def create_json(obj):
             'user': order.user,
             'color': order.color,
             'flight_no': order.flight_no,
-            'price': sum([float(prod.price[1:]) for prod in products])
+            'price': sum([float(prod.price[1:]) for prod in products]),
+            'issue': order.issue if order.issue else None,
+            'message': order.message if order.message else None
         }
     elif isinstance(obj, User):
         user = obj
@@ -284,7 +288,7 @@ def krucible_login():
     if request.method == 'POST':
         if request.form.get('username') == 'admin':
             if request.form.get('password') == 'password':
-                return render_template('krucible.html')
+                return redirect('/krucible/dashboard')
         return render_template('login.html', msg="Error")
     return render_template('login.html')
 
@@ -353,3 +357,22 @@ def get_orders_by_flight(flight_no):
         if order.flight_no == flight_no:
             orders_by_flight.append(order)
     return json.dumps([create_json(order) for order in orders_by_flight][::-1])
+
+
+@app.route('/issues', methods=['GET'])
+def get_all_issues():
+    orders = Order.objects
+    order_w_issues = []
+    for order in orders:
+        if order.issue:
+            order_w_issues.append(order)
+    return json.dumps([create_json(order) for order in order_w_issues])
+
+@app.route('/report_issue/<order_id>', methods=['POST'])
+def report_issue(order_id):
+    issue = request.form.get('issue')
+    message = request.form.get('message')
+    order = Order.objects(order_id=order_id).first()
+    order.update_one(issue=issue)
+    order.update_one(message=message)
+    return 'SUCCESS'
