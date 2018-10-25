@@ -262,7 +262,7 @@
                 var row = orderDetailsTable.insertRow(i);
                 var cell_no = 0;
                 var employee_id = row.insertCell(cell_no++);
-                employee_id.innerHTML = orderActions[i]['id'].toUpperCase();
+                employee_id.innerHTML = orderActions[i]['id'];
                 var timestamp = row.insertCell(cell_no++);
                 timestamp.innerHTML = orderActions[i]['action'];
                 var updated_by = row.insertCell(cell_no++);
@@ -278,7 +278,7 @@
         		var row = employeeTable.insertRow(i);
         		var cell_no = 0;
         		var order_id = row.insertCell(cell_no++);
-        		order_id.innerHTML = employees[i]['order_id'].toUpperCase();
+        		order_id.innerHTML = employees[i]['order_id'];
         		var buyer_id = row.insertCell(cell_no++);
         		buyer_id.innerHTML = employees[i]['buyer_id'];
         		var order_date = row.insertCell(cell_no++);
