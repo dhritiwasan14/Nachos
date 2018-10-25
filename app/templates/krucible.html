@@ -62,7 +62,6 @@
 							<th>Last Updated (GMT)</th>
 							<th>Last Updated By</th>
                             <th>Status</th>
-                            <th>Potential Fraud</th>
 						</thead>
 						<tbody></tbody>
 					</table>
@@ -238,8 +237,6 @@
                 last_updated_by.innerHTML = orders[i]['last_updated_by'];
                 var status = row.insertCell(cell_no++);
                 status.innerHTML = orders[i]['status'];
-                var fraud = row.insertCell(cell_no++);
-                fraud.innerHTML = orders[i]['fraudulent'];
             }
             console.log($('#orders'));
             $('#orders').DataTable();
@@ -346,7 +343,7 @@
                 
                 //detailsModal.find('.modal-body').text(data[0]);
                 detailsModal.modal('show');
-                $.getJSON('/transactions/'+data, function(result){
+                $.getJSON('/transactions/'+data.toLowerCase(), function(result){
                     if (result) {
                         popOrderTransactionsTable(result['transactions']);
                         popOrderDetailsTable(result['order']);
