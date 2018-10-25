@@ -160,7 +160,7 @@
 			data: {
 				labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
 				datasets: [{
-					label: 'My First dataset',
+					label: 'Sales',
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
                     pointBackgroundColor: 'rgba(255, 99, 132, 0.2)',
 					borderColor: 'rgba(255,99,132,1)',
@@ -172,7 +172,7 @@
 				responsive: true,
 				title: {
 					display: true,
-					text: 'Chart.js Line Chart'
+					text: ''
 				},
 				tooltips: {
 					mode: 'index',
@@ -313,7 +313,10 @@
             console.log('input has changed');
 
         });
-
+        $('#detailsModal').on('hidden.bs.modal', function () {
+            $('#orderDetails tbody').empty();
+            $('#orderTransactions tbody').empty();
+        })
         // Set up event listener for when the DOM is fully loaded
         $(document).ready(function() {
             var ctx = document.getElementById('canvas').getContext('2d');
@@ -352,15 +355,21 @@
     		});	
             $('#issues tbody').on('click', 'tr', function () {
                 var data = $(this).find('td').eq(0).text()
-
+                
                 var messageModal = $('#messageModal');
                 
                 //detailsModal.find('.modal-body').text(data[0]);
                 messageModal.modal('show');
+                $.get('/report_message/'+data.toLowerCase(), function(result){
+                    if (result) {
+                        $('#messageModal').find('.modal-body').text(result);
+
+                    }
+                })
     		});	
         });
         
-
+        
 
         function autocomplete(inp, arr) {
             /*the autocomplete function takes two arguments,
