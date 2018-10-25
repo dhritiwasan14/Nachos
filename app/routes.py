@@ -372,7 +372,7 @@ def get_all_issues():
 def report_issue(order_id):
     issue = request.form.get('issue')
     message = request.form.get('message')
-    order = Order.objects(order_id=order_id).first()
+    order = Order.objects(order_id=order_id)
     order.update_one(issue=issue)
     order.update_one(message=message)
     return 'SUCCESS'
