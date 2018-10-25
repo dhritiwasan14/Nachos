@@ -49,6 +49,7 @@ class Order(db.Document):  # ordered, packed, onboard, arrive, completed
     flight_no = db.StringField()
     issue = db.StringField()
     message = db.StringField()
+    fraudulent = db.IntField()
 
 class Transaction(db.Document):
     meta = {'collection': 'transactions'}
@@ -101,7 +102,8 @@ def create_json(obj):
             'flight_no': order.flight_no,
             'price': sum([float(prod.price[1:]) for prod in products]),
             'issue': order.issue if order.issue else None,
-            'message': order.message if order.message else None
+            'message': order.message if order.message else None,
+            'fraudulent': order.fraudulent if order.fraudulent else 0
         }
     elif isinstance(obj, User):
         user = obj
