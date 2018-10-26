@@ -26,7 +26,7 @@
 		      <li class="nav-item dropdown">
 		        <a class="nav-link" href="#" id="navUser" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 		        	<img src="../static/img/profile-sample.png" id="imgUserProfile"> &nbsp;&nbsp;
-		          Rayson Lim
+		          Manager Managerson
 		        </a>
 		        <div class="dropdown-menu" aria-labelledby="navUser">
 		          <a class="dropdown-item" href="#">Sign Out</a>
@@ -330,7 +330,7 @@
         $("#myInput").on('keyup', function (e) {
             
             if (e.keyCode == 13) {
-                var employee_id = $('#myInput').text;
+                var employee_id = $('#myInput').val();
                 $.getJSON('/transactions/'+employee_id, function(result){
                     if (result) {
                         popEmployeeTable(result);
@@ -488,11 +488,6 @@
                 closeAllLists(e.target);
             });
         }
-        $.getJSON('/employees', function(result) {
-            if (result) {
-                autocomplete(document.getElementById("myInput"), result);
-            }
-        })
         $.getJSON('/issues', function(result) {
             if (result) {
                 popIssuesTable(result);

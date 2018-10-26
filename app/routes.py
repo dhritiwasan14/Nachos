@@ -333,16 +333,6 @@ def all_transactions_for_order(order_id):
     )
 
 
-@app.route('/employees', methods=['GET'])
-def get_all_employees():
-    users = User.objects
-    employees = []
-    for user in users:
-        if user.auth == 'employee':
-            employees.append(user)
-    return json.dumps([emp.name for emp in employees])
-
-
 @app.route('/unpacked_orders', methods=['GET'])
 def get_all_unpacked_orders():
     orders = Order.objects
