@@ -384,3 +384,8 @@ def report_issue(order_id):
 def report_message(order_id):
     order = Order.objects(order_id=order_id).first()
     return order.message
+
+@app.route('/transactions/<emp_id>', methods=['GET'])
+def get_emp_trans(emp_id):
+    trans = Transaction.objects(actor=emp_id).all()
+    return json.dumps([create_json(transaction) for transaction in trans])

@@ -67,11 +67,22 @@
 					</table>
 				</div>
 				<div id="panEmployees" class="pane">
-                    <div class="input-group">
-                        <div class="autocomplete">
-                            <input id="myInput" type="text" name="name" placeholder="Employee Name">
+                    <div class="input-group" >
+                        <div class="autocomplete" style="width:40%;">
+                            <input id="myInput" class="form-control" type="text" name="name" placeholder="Employee Name">
                         </div>
                     </div>
+                    <br>
+                    <br>
+                    <table id="employees" class="table">
+                        <thead>
+                            <th>ID</th>
+                            <th>Order ID</th>
+                            <th>Action</th>
+                            <th>Timestamp</th>
+                            <th>Rating</th>
+                        </thead>
+                    </table>
                 </div>
                 <div id="panIssues" class="pane">
                     <table id="issues" class="table">
@@ -238,7 +249,6 @@
                 var status = row.insertCell(cell_no++);
                 status.innerHTML = orders[i]['status'];
             }
-            console.log($('#orders'));
             $('#orders').DataTable();
         }
         function popOrderDetailsTable(orderActions) {
@@ -277,18 +287,17 @@
         		console.log(employees[i]);
         		var row = employeeTable.insertRow(i);
         		var cell_no = 0;
+                var id = row.insertCell(cell_no++);
+        		id.innerHTML = employees[i]['id'];
         		var order_id = row.insertCell(cell_no++);
         		order_id.innerHTML = employees[i]['order_id'];
-        		var buyer_id = row.insertCell(cell_no++);
-        		buyer_id.innerHTML = employees[i]['buyer_id'];
-        		var order_date = row.insertCell(cell_no++);
-        		order_date.innerHTML = employees[i]['order_date'];
         		var last_update_date = row.insertCell(cell_no++);
-        		last_update_date.innerHTML = employees[i]['last_update_date'];
+        		last_update_date.innerHTML = employees[i]['action'];
         		var last_updated_by = row.insertCell(cell_no++);
-        		last_updated_by.innerHTML = employees[i]['last_updated_by'];
-        		var status = row.insertCell(cell_no++);
-        		status.innerHTML = employees[i]['status'];
+        		last_updated_by.innerHTML = employees[i]['datetime'];
+                var rating = row.insertCell(cell_no++);
+        		rating.innerHTML = '4/5';
+                $('#employees').DataTable();
         	}
         }
         function popIssuesTable(issues) {
@@ -317,6 +326,18 @@
             $('#orderDetails tbody').empty();
             $('#orderTransactions tbody').empty();
         })
+
+        $("#myInput").on('keyup', function (e) {
+            
+            if (e.keyCode == 13) {
+                var employee_id = $('#myInput').text;
+                $.getJSON('/transactions/'+employee_id, function(result){
+                    if (result) {
+                        popEmployeeTable(result);
+                    }
+                })
+            }
+        });
         // Set up event listener for when the DOM is fully loaded
         $(document).ready(function() {
             var ctx = document.getElementById('canvas').getContext('2d');
