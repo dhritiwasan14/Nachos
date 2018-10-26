@@ -143,13 +143,14 @@ def sign_up():
     msg = 'SUCCESS'
     name = request.form.get('name')
     mem_id = request.form.get('mem_id')
+    auth = request.form.get('auth')
     if not mem_id:
         return '404'
     try:
         existing_user = User.objects(membership_id=mem_id).first()
         if not existing_user:
             hash_pass = generate_password_hash(request.form.get('password'), method='sha256')
-            user = User(request.form.get('mem_id'), hash_pass, name=name).save()
+            user = User(request.form.get('mem_id'), hash_pass, name=name, auth=auth).save()
         else:
             msg = 'FAILED, USER ALREADY EXISTS'
     except Exception as e:
