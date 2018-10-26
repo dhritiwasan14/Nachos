@@ -386,7 +386,8 @@ def report_message(order_id):
     order = Order.objects(order_id=order_id).first()
     return order.message
 
-@app.route('/transactions/<emp_id>', methods=['GET'])
-def get_emp_trans(emp_id):
+@app.route('/transactions/<emp_name>', methods=['GET'])
+def get_emp_trans(emp_name):
+    emp_id = User.objects(name=emp_name.replace('%20', ' ')).first()['membership_id']
     trans = Transaction.objects(actor=emp_id).all()
     return json.dumps([create_json(transaction) for transaction in trans])
