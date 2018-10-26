@@ -488,6 +488,11 @@
                 closeAllLists(e.target);
             });
         }
+        $.getJSON('/employees', function(result) {
+            if (result) {
+                autocomplete(document.getElementById("myInput"), result);
+            }
+        })
         $.getJSON('/issues', function(result) {
             if (result) {
                 popIssuesTable(result);
