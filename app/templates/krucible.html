@@ -330,7 +330,7 @@
         $("#myInput").on('keyup', function (e) {
             
             if (e.keyCode == 13) {
-                var employee_id = $('#myInput').text();
+                var employee_id = String($('#myInput').text());
                 $.getJSON('/transactions/'+employee_id, function(result){
                     if (result) {
                         popEmployeeTable(result);
